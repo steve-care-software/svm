@@ -16,7 +16,7 @@ const (
 
 // ProgramAdapter represents a program adapter
 type ProgramAdapter interface {
-	ToProgram(script string) (Program, error)
+	ScriptToProgram(script string) (Program, error)
 }
 
 // ProgramBuilder represents a program builder

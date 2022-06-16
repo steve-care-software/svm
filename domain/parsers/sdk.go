@@ -6,7 +6,9 @@ import (
 
 // ProgramAdapter represents a program adapter
 type ProgramAdapter interface {
-	ToProgram(lexed lexers.Program) (Program, error)
+	LexedToProgram(lexed lexers.Program) (Program, error)
+    ProgramToByteCode(program Program) ([]byte, error)
+    ByteCodeToProgram(bytecode []byte) (Program, error)
 }
 
 // ProgramBuilder represents a program builder
