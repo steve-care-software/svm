@@ -4,6 +4,33 @@ import (
     "github.com/steve-care-software/svm/domain/lexers"
 )
 
+const moduleVariableDelimiter = "."
+
+// NewProgramBuilder creates a new program builder
+func NewProgramBuilder() ProgramBuilder {
+    return createProgramBuilder()
+}
+
+// NewExecutionsBuilder creates a new executions builder
+func NewExecutionsBuilder() ExecutionsBuilder {
+    return createExecutionsBuilder()
+}
+
+// NewExecutionBuilder creates a new execution builder
+func NewExecutionBuilder() ExecutionBuilder {
+    return createExecutionBuilder()
+}
+
+// NewVariablesBuilder creates a new variables builder
+func NewVariablesBuilder() VariablesBuilder {
+    return createVariablesBuilder()
+}
+
+// NewVariableBuilder creates a new variable builder
+func NewVariableBuilder() VariableBuilder {
+    return createVariableBuilder()
+}
+
 // ProgramAdapter represents a program adapter
 type ProgramAdapter interface {
 	LexedToProgram(lexed lexers.Program) (Program, error)
@@ -36,6 +63,7 @@ type ExecutionsBuilder interface {
 // Executions represents executions
 type Executions interface {
 	List() []Execution
+    Find(name string) (Execution, error)
 }
 
 // ExecutionBuilder represents an execution builder
@@ -65,6 +93,7 @@ type VariablesBuilder interface {
 // Variables represents variables
 type Variables interface {
 	List() []Variable
+    Find(module string, variable string) (Variable, error)
 }
 
 // VariableBuilder represents a variable builder
@@ -80,6 +109,5 @@ type VariableBuilder interface {
 type Variable interface {
 	Kind() lexers.Kind
 	Name() string
-	HasValue() bool
 	Value() interface{}
 }
