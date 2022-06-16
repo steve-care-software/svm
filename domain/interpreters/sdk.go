@@ -1,19 +1,49 @@
-package modules
+package interpreters
 
 import (
-    "github.com/steve-care-software/svm/domain/interpreters/variables"
+    "github.com/steve-care-software/svm/domain/parsers"
 )
 
 // AssignFn represents the assign func
-type AssignFn func(input variables.Variables, value string) (variables.Variables, error)
+type AssignFn func(input parsers.Variables, value string) (parsers.Variables, error)
 
 // ExecuteFn represents the execute func
-type ExecuteFn func(input variables.Variables, application string) (variables.Variables, error)
+type ExecuteFn func(input parsers.Variables, application string) (parsers.Variables, error)
 
-// Builder represents the modules builder
-type Builder interface {
-    Create() Builder
-    WithList(list []Module) Builder
+// NewModulesBuilder creates a new modules builder
+func NewModulesBuilder() ModulesBuilder {
+    return createModulesBuilder()
+}
+
+// NewModuleBuilder creates a new module builder
+func NewModuleBuilder() ModuleBuilder {
+    return createModuleBuilder()
+}
+
+// NewWatchesBuilder creates a new watches builder
+func NewWatchesBuilder() WatchesBuilder {
+    return createWatchesBuilder()
+}
+
+// NewWatchBuilder creates a new watch builder
+func NewWatchBuilder() WatchBuilder {
+    return createWatchBuilder()
+}
+
+// NewEventBuilder creates a new event builder
+func NewEventBuilder() EventBuilder {
+    return createEventBuilder()
+}
+
+// NewEventDefinitionBuilder creates a new event definition builder
+func NewEventDefinitionBuilder() EventDefinitionBuilder {
+    return createEventDefinitionBuilder()
+}
+
+// ModulesBuilder represents the modules builder
+type ModulesBuilder interface {
+    Create() ModulesBuilder
+    WithList(list []Module) ModulesBuilder
     Now() (Modules, error)
 }
 
@@ -35,6 +65,7 @@ type ModuleBuilder interface {
 // Module represents a module
 type Module interface {
     Name() string
+    HasEvent() bool
     Event() Event
     HasWatches() bool
     Watches() Watches
@@ -50,7 +81,7 @@ type WatchesBuilder interface {
 // Watches represents watches
 type Watches interface {
     List() []Watch
-    Find(name string) (Watch, error)
+    Find(module string) (Watch, error)
 }
 
 // WatchBuilder represents a watch builder
@@ -86,13 +117,14 @@ type Event interface {
 // EventDefinitionBuilder represents an event definition builder
 type EventDefinitionBuilder interface {
     Create() EventDefinitionBuilder
-    WithAssign(assign AssignFn) EventDefinitionBuilder
     WithExecute(execute ExecuteFn) EventDefinitionBuilder
+    WithAssign(assign AssignFn) EventDefinitionBuilder
     Now() (EventDefinition, error)
 }
 
 // EventDefinition represents an event definition
 type EventDefinition interface {
-    Assign() AssignFn
     Execute() ExecuteFn
+    HasAssign() bool
+    Assign() AssignFn
 }
