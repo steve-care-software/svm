@@ -12,28 +12,25 @@ module myModule;
 ##### Data type declaration
 ```
 // type declaration:
-module type data myDataType;
+type data myModule.myDataType;
 ```
 
 ##### Application type declaration
 ```
 // type declaration:
-module type application myApplicationType;
+type application myModule.myApplicationType;
 ```
 
 #### Variable Declaration
 ```
-// data variable declaration:
-myModule.myDataType myDataVariable;
-
-// application variable declaration:
-myModule.myApplicationType myAppVariable;
+// variable declaration:
+myModule.myType myVariable;
 ```
 
-#### Parameters declaration
+#### Parameter declaration
 The input parameters can be of any data type.
 ```
-// this isa variable with an input:
+// this is variable with an input:
 -> myModule.myDataType myInput;
 
 // this is a variable with an output:
@@ -43,34 +40,25 @@ The input parameters can be of any data type.
 #### Variable Assignment
 ```
 // declaration with assignment:
-myModule.myDataType myDataVariable = ANY VALUE EXCEPT NON-ESCAPED SEMI-COLON;
+myModule.myType myVariable = ANY VALUE EXCEPT NON-ESCAPED SEMI-COLON;
 
 // assignment of a previously declared variable:
-myModule.myApplicationType myAppVariable = ANY VALUE EXCEPT NON-ESCAPED SEMI-COLON;
+myVariable = ANY VALUE EXCEPT NON-ESCAPED SEMI-COLON;
 ```
 
 #### Attachment (attach/detach)
 ```
-// attach bytes to application:
-attach bytes myData:data to myModule.myApplicationType myAppVariable;
+// attach variable to application:
+attach myDataVariable:data to myAppVariable;
 
-// attach module data variable to application:
-attach myModule.myDataType myModule.myDataVariable:data to myModule.myApplicationType myAppVariable;
-
-// detach bytes from application:
-detach bytes myData:data to myModule.myApplicationType myAppVariable;
-
-// detach module data variable from application:
-detach myModule.myDataType myModule.myDataVariable:data from myModule.myApplicationType myAppVariable;
+// detach variable from application:
+detach myDataVariable:data from myAppVariable;
 ```
 ### Execution
 ```
-// execute module application that returns a module output:
-myModule.myDataType myModule.myOutput = execute myModule.myApplicationType myAppVariable;
-
-// execute module application that return bytes:
-bytes output = execute myModule.myApplicationType myAppVariable;
+// execute module application that returns an output:
+myModule.myDataType myOutput = execute myAppVariable;
 
 // execute module application without a return clause:
-execute myModule.myApplicationType myAppVariable;
+execute myAppVariable;
 ```
