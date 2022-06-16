@@ -14,6 +14,47 @@ const (
 	DirectionOutput
 )
 
+// NewProgramBuilder creates a new program builder
+func NewProgramBuilder() ProgramBuilder {
+    return createProgramBuilder()
+}
+
+// NewInstructionBuilder creates a new instruction builder
+func NewInstructionBuilder() InstructionBuilder {
+    return createInstructionBuilder()
+}
+
+// NewExecutionBuilder creates a new execution builder
+func NewExecutionBuilder() ExecutionBuilder {
+    return createExecutionBuilder()
+}
+
+// NewActionBuilder creates a new action builder
+func NewActionBuilder() ActionBuilder {
+    return createActionBuilder()
+}
+
+// NewScopeBuilder creates a new scope builder
+func NewScopeBuilder() ScopeBuilder {
+    return createScopeBuilder()
+}
+
+// NewAssignmentBuilder creates a new assignment builder
+func NewAssignmentBuilder() AssignmentBuilder {
+    return createAssignmentBuilder()
+}
+
+// NewVariableBuilder creates a new variable builder
+func NewVariableBuilder() VariableBuilder {
+    return createVariableBuilder()
+}
+
+// NewKindBuilder creates a new kind builder
+func NewKindBuilder() KindBuilder {
+    return createKindBuilder()
+}
+
+
 // ProgramAdapter represents a program adapter
 type ProgramAdapter interface {
 	ScriptToProgram(script string) (Program, error)
@@ -22,28 +63,16 @@ type ProgramAdapter interface {
 // ProgramBuilder represents a program builder
 type ProgramBuilder interface {
 	Create() ProgramBuilder
-	WithInstructions(instructions Instructions) ProgramBuilder
-	WithVariables(parameters Variables) ProgramBuilder
+	WithInstructions(instructions []Instruction) ProgramBuilder
+	WithParameters(parameters []Variable) ProgramBuilder
 	Now() (Program, error)
 }
 
 // Program represents a program
 type Program interface {
-	Instructions() Instructions
-	HasVariables() bool
-	Variables() Variables
-}
-
-// InstructionsBuilder represents an instructions builder
-type InstructionsBuilder interface {
-	Create() InstructionsBuilder
-	WithList(list []Instruction) InstructionsBuilder
-	Now() (Instructions, error)
-}
-
-// Instructions represents instructions
-type Instructions interface {
-	List() []Instruction
+	Instructions() []Instruction
+	HasParameters() bool
+	Parameters() []Variable
 }
 
 // InstructionBuilder represents an instruction builder
@@ -100,23 +129,23 @@ type ActionBuilder interface {
 
 // Action represents an action
 type Action interface{
-	IsAttach() bool
 	Scope() Scope
 	Application() string
+	IsAttach() bool
 }
 
 // ScopeBuilder represents a scope builder
 type ScopeBuilder interface {
 	Create() ScopeBuilder
-	WithLocal(local string) ScopeBuilder
 	WithProgram(program string) ScopeBuilder
+	WithModule(module string) ScopeBuilder
 	Now() (Scope, error)
 }
 
 // Scope represents a scope
 type Scope interface {
-	Local() string
 	Program() string
+	Module() string
 }
 
 // AssignmentBuilder represents an assignment builder
@@ -134,19 +163,6 @@ type Assignment interface {
 	IsDeclaration() bool
 	Declaration() Variable
 }
-
-// VariablesBuilder represents a variables builder
-type VariablesBuilder interface {
-	Create() VariablesBuilder
-	WithList(list []Variable) VariablesBuilder
-	Now() (Variables, error)
-}
-
-// Variables represents variables
-type Variables interface {
-	List() []Variable
-}
-
 
 // VariableBuilder represents a variable builder
 type VariableBuilder interface {
