@@ -6,17 +6,90 @@ const (
 
 	// KindApplication represents the application type
 	KindApplication
-
-	// DirectionInput represents the input direction
-	DirectionInput
-
-	// DirectionOutput represents the output direction
-	DirectionOutput
 )
+
+const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+// NewProgramAdapter creates a new program adapter
+func NewProgramAdapter() ProgramAdapter {
+	builder := NewProgramBuilder()
+	parameterBuilder := NewParameterBuilder()
+	instructionBuilder := NewInstructionBuilder()
+	executionBuilder := NewExecutionBuilder()
+	actionBuilder := NewActionBuilder()
+	scopeBuilder := NewScopeBuilder()
+	assignmentBuilder := NewAssignmentBuilder()
+	variableBuilder := NewVariableBuilder()
+	kindBuilder := NewKindBuilder()
+	moduleKeyname := "module"
+    typeKeyname := "type"
+    dataKeyname := "data"
+    inputKeyname := "->"
+    outputKeyname := "<-"
+    applicationKeyname := "application"
+    attachKeyname := "attach"
+    detachKeyname := "detach"
+    toKeyname := "@"
+    fromKeyname := "@"
+    executeKeyname := "execute"
+    moduleNameCharacters := []byte(letters)
+    typeCharacters := []byte(letters)
+    variableCharacters := []byte(letters)
+	channelCharacters := []byte{
+		[]byte("\t")[0],
+		[]byte("\n")[0],
+		[]byte("\r")[0],
+		[]byte(" ")[0],
+	}
+
+    scopeDelimiter := []byte(":")[0]
+    lineDelimiter := []byte(";")[0]
+    escapeDelimiter := []byte("\\")[0]
+    assignmentDelimiter :=  []byte("=")[0]
+	moduleTypeDelimiter := []byte(".")[0]
+	variableNameUsage := []byte("$")[0]
+	return createProgramAdapter(
+		builder,
+		parameterBuilder,
+		instructionBuilder,
+		executionBuilder,
+		actionBuilder,
+		scopeBuilder,
+		assignmentBuilder,
+		variableBuilder,
+		kindBuilder,
+		moduleKeyname,
+	    typeKeyname,
+	    dataKeyname,
+	    inputKeyname,
+	    outputKeyname,
+	    applicationKeyname,
+	    attachKeyname,
+	    detachKeyname,
+	    toKeyname,
+	    fromKeyname,
+	    executeKeyname,
+	    moduleNameCharacters,
+	    typeCharacters,
+	    variableCharacters,
+	    channelCharacters,
+	    scopeDelimiter,
+	    lineDelimiter,
+	    escapeDelimiter,
+	    assignmentDelimiter,
+		moduleTypeDelimiter,
+		variableNameUsage,
+	)
+}
 
 // NewProgramBuilder creates a new program builder
 func NewProgramBuilder() ProgramBuilder {
     return createProgramBuilder()
+}
+
+// NewParameterBuilder creates a new parameter builder
+func NewParameterBuilder() ParameterBuilder {
+	return createParameterBuilder()
 }
 
 // NewInstructionBuilder creates a new instruction builder
@@ -57,14 +130,14 @@ func NewKindBuilder() KindBuilder {
 
 // ProgramAdapter represents a program adapter
 type ProgramAdapter interface {
-	ScriptToProgram(script string) (Program, error)
+	ScriptToProgram(script string) (Program, []byte, error)
 }
 
 // ProgramBuilder represents a program builder
 type ProgramBuilder interface {
 	Create() ProgramBuilder
 	WithInstructions(instructions []Instruction) ProgramBuilder
-	WithParameters(parameters []Variable) ProgramBuilder
+	WithParameters(parameters []Parameter) ProgramBuilder
 	Now() (Program, error)
 }
 
@@ -72,7 +145,21 @@ type ProgramBuilder interface {
 type Program interface {
 	Instructions() []Instruction
 	HasParameters() bool
-	Parameters() []Variable
+	Parameters() []Parameter
+}
+
+// ParameterBuilder represents a parameter builder
+type ParameterBuilder interface {
+	Create() ParameterBuilder
+	WithDeclaration(declaration Variable) ParameterBuilder
+	IsInput() ParameterBuilder
+	Now() (Parameter, error)
+}
+
+// Parameter represents a parameter
+type Parameter interface {
+	Declaration() Variable
+	IsInput() bool
 }
 
 // InstructionBuilder represents an instruction builder
@@ -151,6 +238,7 @@ type Scope interface {
 // AssignmentBuilder represents an assignment builder
 type AssignmentBuilder interface {
 	Create() AssignmentBuilder
+	WithContent(content string) AssignmentBuilder
 	WithName(name string) AssignmentBuilder
 	WithDeclaration(declaration Variable) AssignmentBuilder
 	Now() (Assignment, error)
@@ -158,6 +246,7 @@ type AssignmentBuilder interface {
 
 // Assignment represents the assignment
 type Assignment interface {
+	Content() string
 	IsName() bool
 	Name() string
 	IsDeclaration() bool

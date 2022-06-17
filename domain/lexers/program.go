@@ -2,7 +2,7 @@ package lexers
 
 type program struct {
     instructions  []Instruction
-    parameters []Variable
+    parameters []Parameter
 }
 
 func createProgram(
@@ -13,14 +13,14 @@ func createProgram(
 
 func createProgramWithParameters(
     instructions  []Instruction,
-    parameters []Variable,
+    parameters []Parameter,
 ) Program {
     return createProgramInternally(instructions, parameters)
 }
 
 func createProgramInternally(
     instructions  []Instruction,
-    parameters []Variable,
+    parameters []Parameter,
 ) Program {
     out := program{
         instructions: instructions,
@@ -41,6 +41,6 @@ func (obj *program) HasParameters() bool {
 }
 
 // Parameters returns the parameters, if any
-func (obj *program) Parameters() []Variable {
+func (obj *program) Parameters() []Parameter {
     return obj.parameters
 }

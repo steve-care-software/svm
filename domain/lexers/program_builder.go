@@ -6,7 +6,7 @@ import (
 
 type programBuilder struct {
     instructions  []Instruction
-    parameters []Variable
+    parameters []Parameter
 }
 
 func createProgramBuilder() ProgramBuilder {
@@ -30,7 +30,7 @@ func (app *programBuilder) WithInstructions(instructions []Instruction) ProgramB
 }
 
 // WithParameters add parameters to the builder
-func (app *programBuilder) WithParameters(parameters []Variable) ProgramBuilder {
+func (app *programBuilder) WithParameters(parameters []Parameter) ProgramBuilder {
     app.parameters = parameters
     return app
 }

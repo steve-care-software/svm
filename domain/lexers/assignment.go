@@ -1,32 +1,42 @@
 package lexers
 
 type assignment struct {
+    content string
     name string
     declaration Variable
 }
 
 func createAssignmentWithName(
+    content string,
     name string,
 ) Assignment {
-    return createAssignmentInternally(name, nil)
+    return createAssignmentInternally(content, name, nil)
 }
 
 func createAssignmentWithDeclaration(
+    content string,
     declaration Variable,
 ) Assignment {
-    return createAssignmentInternally("", declaration)
+    return createAssignmentInternally(content,"", declaration)
 }
 
 func createAssignmentInternally(
+    content string,
     name string,
     declaration Variable,
 ) Assignment {
     out := assignment{
+        content: content,
         name: name,
         declaration: declaration,
     }
 
     return &out
+}
+
+// Content returns the content
+func (obj *assignment) Content() string {
+    return obj.content
 }
 
 // IsName returns true if there is a name, false otherwise
