@@ -7,18 +7,33 @@ import (
 type variable struct {
     kind lexers.Kind
     name string
-    value interface{}
+    pContent *string
 }
 
 func createVariable(
     kind lexers.Kind,
     name string,
-    value interface{},
+) Variable {
+    return createVariableInternally(kind, name, nil)
+}
+
+func createVariableWithContent(
+    kind lexers.Kind,
+    name string,
+    pContent *string,
+) Variable {
+    return createVariableInternally(kind, name, pContent)
+}
+
+func createVariableInternally(
+    kind lexers.Kind,
+    name string,
+    pContent *string,
 ) Variable {
     out := variable{
         kind: kind,
         name: name,
-        value: value,
+        pContent: pContent,
     }
 
     return &out
@@ -34,7 +49,12 @@ func (obj *variable) Name() string {
     return obj.name
 }
 
-// Value returns the value
-func (obj *variable) Value() interface{} {
-    return obj.value
+// HasContent returns true if there is content, false otherwise
+func (obj *variable) HasContent() bool {
+    return obj.pContent != nil
+}
+
+// Content returns the content, if any
+func (obj *variable) Content() *string {
+    return obj.pContent
 }

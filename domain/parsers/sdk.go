@@ -53,6 +53,14 @@ type Program interface {
 	Parameters() Variables
 }
 
+// Computer represents a parser computer
+type Computer interface {
+    Module(name string) error
+    Kind(kind lexers.Kind) error
+    Variable(variable lexers.Variable) error
+    Assignment(assignment lexers.Assignment) error
+}
+
 // ExecutionsBuilder represents an executions builder
 type ExecutionsBuilder interface {
 	Create() ExecutionsBuilder
@@ -101,7 +109,7 @@ type VariableBuilder interface {
 	Create() VariableBuilder
 	WithKind(kind lexers.Kind) VariableBuilder
 	WithName(name string) VariableBuilder
-	WithValue(value interface{}) VariableBuilder
+	WithContent(content string) VariableBuilder
 	Now() (Variable, error)
 }
 
@@ -109,5 +117,6 @@ type VariableBuilder interface {
 type Variable interface {
 	Kind() lexers.Kind
 	Name() string
-	Value() interface{}
+    HasContent() bool
+	Content() *string
 }

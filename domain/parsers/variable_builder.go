@@ -8,14 +8,14 @@ import (
 type variableBuilder struct {
     kind lexers.Kind
     name string
-    value interface{}
+    pContent *string
 }
 
 func createVariableBuilder() VariableBuilder {
     out := variableBuilder{
         kind: nil,
         name: "",
-        value: nil,
+        pContent: nil,
     }
 
     return &out
@@ -38,9 +38,9 @@ func (app *variableBuilder) WithName(name string) VariableBuilder {
     return app
 }
 
-// WithValue adds a value to the builder
-func (app *variableBuilder) WithValue(value interface{}) VariableBuilder {
-    app.value = value
+// WithContent adds a content to the builder
+func (app *variableBuilder) WithContent(content string) VariableBuilder {
+    app.pContent = &content
     return app
 }
 
@@ -54,5 +54,9 @@ func (app *variableBuilder) Now() (Variable, error) {
         return nil, errors.New("the name is mandatory in order to build a Variable instance")
     }
 
-    return createVariable(app.kind, app.name, app.value), nil
+    if app.pContent != nil {
+        return createVariableWithContent(app.kind, app.name, app.pContent), nil
+    }
+
+    return createVariable(app.kind, app.name), nil
 }
