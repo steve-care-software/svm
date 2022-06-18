@@ -1,56 +1,46 @@
 package parsers
 
 type execution struct {
-    module string
-    application Variable
-    attachments Variables
+    application Application
+    output Variable
 }
 
 func createExecution(
-    module string,
-    application Variable,
+    application Application,
 ) Execution {
-    return createExecutionInternally(module, application, nil)
+    return createExecutionInternally(application, nil)
 }
 
-func createExecutionWithAttachments(
-    module string,
-    application Variable,
-    attachments Variables,
+func createExecutionWithOutput(
+    application Application,
+    output Variable,
 ) Execution {
-    return createExecutionInternally(module, application, attachments)
+    return createExecutionInternally(application, output)
 }
 
 func createExecutionInternally(
-    module string,
-    application Variable,
-    attachments Variables,
+    application Application,
+    output Variable,
 ) Execution {
     out := execution{
-        module: module,
         application: application,
-        attachments: attachments,
+        output: output,
     }
 
     return &out
 }
 
-// Module returns the module
-func (obj *execution) Module() string {
-    return obj.module
-}
-
 // Application returns the application
-func (obj *execution) Application() Variable {
+func (obj *execution) Application() Application {
     return obj.application
 }
 
-// HasAttachments returns true if there is attachments, false otherwise
-func (obj *execution) HasAttachments() bool {
-    return obj.attachments != nil
+// HasOutput returns true if there is an output, false otherwise
+func (obj *execution) HasOutput() bool {
+    return obj.output != nil
 }
 
-// Attachments returns the attachments, if any
-func (obj *execution) Attachments() Variables {
-    return obj.attachments
+// Output returns the output, if any
+func (obj *execution) Output() Variable {
+    return obj.output
 }

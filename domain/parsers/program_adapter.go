@@ -6,16 +6,16 @@ import (
 
 type programAdapter struct {
     lexerAdapter lexers.ProgramAdapter
-    computer Computer
+    computerFactory ComputerFactory
 }
 
 func createProgramAdapter(
     lexerAdapter lexers.ProgramAdapter,
-    computer Computer,
+    computerFactory ComputerFactory,
     ) ProgramAdapter {
     out := programAdapter {
         lexerAdapter: lexerAdapter,
-        computer: computer,
+        computerFactory: computerFactory,
     }
 
     return &out
@@ -23,39 +23,71 @@ func createProgramAdapter(
 
 // LexedToProgram converts a lexed program to a parsed program
 func (app *programAdapter) LexedToProgram(lexed lexers.Program) (Program, error) {
-    return nil, nil
+    computer := app.computerFactory.Create()
+    if lexed.HasParameters() {
+        parameters := lexed.Parameters()
+        err := app.parameters(computer, parameters)
+        if err != nil {
+            return nil, err
+        }
+    }
+
+    instructions := lexed.Instructions()
+    err := app.instructions(computer, instructions)
+    if err != nil {
+        return nil, err
+    }
+
+    return computer.Program()
 }
 
-func (app *programAdapter) instruction(instruction lexers.Instruction, variablesByModule map[string]map[string]Variable, variables map[string]Variable) error {
+func (app *programAdapter) parameters(computer Computer, parameters []lexers.Parameter) error {
+    for _, oneParameter := range(parameters) {
+        computer.Parameter(oneParameter)
+    }
+
+    return nil
+}
+
+func (app *programAdapter) instructions(computer Computer, instructions []lexers.Instruction) error {
+    for _, oneInstruction := range(instructions) {
+        err := app.instruction(computer, oneInstruction)
+        if err != nil {
+            return err
+        }
+    }
+
+    return nil
+}
+
+func (app *programAdapter) instruction(computer Computer, instruction lexers.Instruction) error {
     if instruction.IsModule() {
         module := instruction.Module()
-        return app.computer.Module(module)
+        return computer.Module(module)
     }
 
     if instruction.IsKind() {
         kind := instruction.Kind()
-        return app.computer.Kind(kind)
+        return computer.Kind(kind)
     }
 
     if instruction.IsVariable() {
         variable := instruction.Variable()
-        return app.computer.Variable(variable)
+        return computer.Variable(variable)
     }
 
     if instruction.IsAssignment() {
         assignment := instruction.Assignment()
-        return app.computer.Assignment(assignment)
+        return computer.Assignment(assignment)
     }
 
     if instruction.IsAction() {
-
+        action := instruction.Action()
+        return computer.Action(action)
     }
 
-    if instruction.IsExecution() {
-
-    }
-
-    return nil
+    lexedExecution := instruction.Execution()
+    return computer.Execute(lexedExecution)
 }
 
 // ProgramToByteCode converts a parsed program to bytecodes

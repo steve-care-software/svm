@@ -6,9 +6,49 @@ import (
 
 const moduleVariableDelimiter = "."
 
+// NewProgramAdapter creates a new program adapter
+func NewProgramAdapter() ProgramAdapter {
+    lexerAdapter := lexers.NewProgramAdapter()
+    computerFactory := NewComputerFactory()
+    return createProgramAdapter(lexerAdapter, computerFactory)
+}
+
 // NewProgramBuilder creates a new program builder
 func NewProgramBuilder() ProgramBuilder {
     return createProgramBuilder()
+}
+
+// NewComputerFactory creates a new computer factory
+func NewComputerFactory() ComputerFactory {
+    programBuilder := NewProgramBuilder()
+    executionsBuilder := NewExecutionsBuilder()
+    parametersBuilder := NewParametersBuilder()
+    parameterBuilder := NewParameterBuilder()
+    executionBuilder := NewExecutionBuilder()
+    applicationBuilder := NewApplicationBuilder()
+    variablesBuilder := NewVariablesBuilder()
+    variableBuilder := NewVariableBuilder()
+    return createComputerFactory(
+        programBuilder,
+        executionsBuilder,
+        parametersBuilder,
+        parameterBuilder,
+        executionBuilder,
+        applicationBuilder,
+        variablesBuilder,
+        variableBuilder,
+    )
+}
+
+
+// NewParametersBuilder creates a new parameters builder
+func NewParametersBuilder() ParametersBuilder {
+    return createParametersBuilder()
+}
+
+// NewParameterBuilder creates a new parameter builder
+func NewParameterBuilder() ParameterBuilder {
+    return createParameterBuilder()
 }
 
 // NewExecutionsBuilder creates a new executions builder
@@ -19,6 +59,11 @@ func NewExecutionsBuilder() ExecutionsBuilder {
 // NewExecutionBuilder creates a new execution builder
 func NewExecutionBuilder() ExecutionBuilder {
     return createExecutionBuilder()
+}
+
+// NewApplicationBuilder creates a new application builder
+func NewApplicationBuilder() ApplicationBuilder {
+    return createApplicationBuilder()
 }
 
 // NewVariablesBuilder creates a new variables builder
@@ -42,7 +87,7 @@ type ProgramAdapter interface {
 type ProgramBuilder interface {
 	Create() ProgramBuilder
 	WithExecutions(executions Executions) ProgramBuilder
-	WithParameters(parameters Variables) ProgramBuilder
+	WithParameters(parameters Parameters) ProgramBuilder
 	Now() (Program, error)
 }
 
@@ -50,7 +95,38 @@ type ProgramBuilder interface {
 type Program interface {
 	Executions() Executions
 	HasParameters() bool
-	Parameters() Variables
+	Parameters() Parameters
+}
+
+// ParametersBuilder represents a parameters builder
+type ParametersBuilder interface {
+    Create() ParametersBuilder
+    WithList(list []Parameter) ParametersBuilder
+    Now() (Parameters, error)
+}
+
+// Parameters represents the parameters
+type Parameters interface {
+    List() []Parameter
+}
+
+// ParameterBuilder represents a parameter builder
+type ParameterBuilder interface {
+	Create() ParameterBuilder
+	WithDeclaration(declaration Variable) ParameterBuilder
+	IsInput() ParameterBuilder
+	Now() (Parameter, error)
+}
+
+// Parameter represents a parameter
+type Parameter interface {
+	Declaration() Variable
+	IsInput() bool
+}
+
+// ComputerFactory represents a computer factory
+type ComputerFactory interface {
+    Create() Computer
 }
 
 // Computer represents a parser computer
@@ -59,6 +135,10 @@ type Computer interface {
     Kind(kind lexers.Kind) error
     Variable(variable lexers.Variable) error
     Assignment(assignment lexers.Assignment) error
+    Action(action lexers.Action) error
+    Execute(execution lexers.Execution) error
+    Parameter(parameter lexers.Parameter) error
+    Program() (Program, error)
 }
 
 // ExecutionsBuilder represents an executions builder
@@ -76,16 +156,29 @@ type Executions interface {
 
 // ExecutionBuilder represents an execution builder
 type ExecutionBuilder interface {
-	Create() ExecutionBuilder
-	WithModule(module string) ExecutionBuilder
-	WithApplication(application Variable) ExecutionBuilder
-	WithAttachments(attachments Variables) ExecutionBuilder
-	Now() (Execution, error)
+    Create() ExecutionBuilder
+    WithApplication(application Application) ExecutionBuilder
+    WithOutput(output Variable) ExecutionBuilder
+    Now() (Execution, error)
 }
 
-// Execution represents a program execution
+// Execution represents an execution
 type Execution interface {
-	Module() string
+    Application() Application
+    HasOutput() bool
+    Output() Variable
+}
+
+// ApplicationBuilder represents an application builder
+type ApplicationBuilder interface {
+	Create() ApplicationBuilder
+	WithApplication(application Variable) ApplicationBuilder
+	WithAttachments(attachments Variables) ApplicationBuilder
+	Now() (Application, error)
+}
+
+// Application represents an application execution
+type Application interface {
 	Application() Variable
 	HasAttachments() bool
 	Attachments() Variables

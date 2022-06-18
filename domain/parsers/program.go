@@ -2,7 +2,7 @@ package parsers
 
 type program struct {
     executions Executions
-    parameters Variables
+    parameters Parameters
 }
 
 func createProgram(
@@ -13,14 +13,14 @@ func createProgram(
 
 func createProgramWithParameters(
     executions Executions,
-    parameters Variables,
+    parameters Parameters,
 ) Program {
     return createProgramInternally(executions, parameters)
 }
 
 func createProgramInternally(
     executions Executions,
-    parameters Variables,
+    parameters Parameters,
 ) Program {
     out := program{
         executions: executions,
@@ -41,6 +41,6 @@ func (obj *program) HasParameters() bool {
 }
 
 // Parameters returns the parameters, if any
-func (obj *program) Parameters() Variables {
+func (obj *program) Parameters() Parameters {
     return obj.parameters
 }

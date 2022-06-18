@@ -40,7 +40,7 @@ func (app *executionsBuilder) Now() (Executions, error) {
 
     mp := map[string]Execution{}
     for _, oneExecution := range(app.list) {
-        keyname := fmt.Sprintf("%s%s%s", oneExecution.Module(), moduleVariableDelimiter, oneExecution.Application().Name())
+        keyname := fmt.Sprintf("%s%s%s", oneExecution.Application().Application().Kind().Module(), moduleVariableDelimiter, oneExecution.Application().Application().Name())
         mp[keyname] = oneExecution
     }
 
