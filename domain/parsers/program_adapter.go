@@ -21,8 +21,8 @@ func createProgramAdapter(
     return &out
 }
 
-// LexedToProgram converts a lexed program to a parsed program
-func (app *programAdapter) LexedToProgram(lexed lexers.Program) (Program, error) {
+// ToProgram converts a lexed program to a parsed program
+func (app *programAdapter) ToProgram(lexed lexers.Program) (Program, error) {
     computer := app.computerFactory.Create()
     if lexed.HasParameters() {
         parameters := lexed.Parameters()
@@ -88,14 +88,4 @@ func (app *programAdapter) instruction(computer Computer, instruction lexers.Ins
 
     lexedExecution := instruction.Execution()
     return computer.Execute(lexedExecution)
-}
-
-// ProgramToByteCode converts a parsed program to bytecodes
-func (app *programAdapter) ProgramToByteCode(program Program) ([]byte, error) {
-    return nil, nil
-}
-
-// ByteCodeToProgram converts bytecodes to a parsed program
-func (app *programAdapter) ByteCodeToProgram(bytecode []byte) (Program, error) {
-    return nil, nil
 }

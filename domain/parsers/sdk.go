@@ -78,9 +78,7 @@ func NewVariableBuilder() VariableBuilder {
 
 // ProgramAdapter represents a program adapter
 type ProgramAdapter interface {
-	LexedToProgram(lexed lexers.Program) (Program, error)
-    ProgramToByteCode(program Program) ([]byte, error)
-    ByteCodeToProgram(bytecode []byte) (Program, error)
+	ToProgram(lexed lexers.Program) (Program, error)
 }
 
 // ProgramBuilder represents a program builder
