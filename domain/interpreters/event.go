@@ -1,32 +1,32 @@
 package interpreters
 
 type event struct {
-    enter EventDefinition
-    exit EventDefinition
+    enter ExecuteFn
+    exit ExecuteFn
 }
 
 func createEventWithEnter(
-    enter EventDefinition,
+    enter ExecuteFn,
 ) Event {
     return createEventInternally(enter, nil)
 }
 
 func createEventWithExit(
-    exit EventDefinition,
+    exit ExecuteFn,
 ) Event {
     return createEventInternally(nil, exit)
 }
 
 func createEventWithEnterAndExit(
-    enter EventDefinition,
-    exit EventDefinition,
+    enter ExecuteFn,
+    exit ExecuteFn,
 ) Event {
     return createEventInternally(enter, exit)
 }
 
 func createEventInternally(
-    enter EventDefinition,
-    exit EventDefinition,
+    enter ExecuteFn,
+    exit ExecuteFn,
 ) Event {
     out := event{
         enter: enter,
@@ -42,7 +42,7 @@ func (obj *event) HasEnter() bool {
 }
 
 // Enter returns the enter, if any
-func (obj *event) Enter() EventDefinition {
+func (obj *event) Enter() ExecuteFn {
     return obj.enter
 }
 
@@ -52,6 +52,6 @@ func (obj *event) HasExit() bool {
 }
 
 // Exit returns the exit, if any
-func (obj *event) Exit() EventDefinition {
+func (obj *event) Exit() ExecuteFn {
     return obj.exit
 }

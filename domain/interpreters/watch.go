@@ -2,12 +2,12 @@ package interpreters
 
 type watch struct {
     module string
-    event Event
+    event WatchEvent
 }
 
 func createWatch(
     module string,
-    event Event,
+    event WatchEvent,
 ) Watch {
     out:= watch{
         module: "",
@@ -23,6 +23,6 @@ func (obj *watch) Module() string {
 }
 
 // Event returns the event
-func (obj *watch) Event() Event {
+func (obj *watch) Event() WatchEvent {
     return obj.event
 }

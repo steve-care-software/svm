@@ -5,8 +5,8 @@ import (
 )
 
 type eventBuilder struct {
-    enter EventDefinition
-    exit EventDefinition
+    enter ExecuteFn
+    exit ExecuteFn
 }
 
 func createEventBuilder() EventBuilder {
@@ -24,13 +24,13 @@ func (app *eventBuilder) Create() EventBuilder {
 }
 
 // WithEnter adds an enter to the builder
-func (app *eventBuilder) WithEnter(enter EventDefinition) EventBuilder {
+func (app *eventBuilder) WithEnter(enter ExecuteFn) EventBuilder {
     app.enter = enter
     return app
 }
 
 // WithExit adds an exit to the builder
-func (app *eventBuilder) WithExit(exit EventDefinition) EventBuilder {
+func (app *eventBuilder) WithExit(exit ExecuteFn) EventBuilder {
     app.exit = exit
     return app
 }

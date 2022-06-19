@@ -2,13 +2,13 @@ package interpreters
 
 type module struct {
     name string
-    event Event
+    event ExecuteFn
     watches Watches
 }
 
 func createModuleWithEvent(
     name string,
-    event Event,
+    event ExecuteFn,
 ) Module {
     return createModuleInternally(name, event, nil)
 }
@@ -22,7 +22,7 @@ func createModuleWithWatches(
 
 func createModuleWithEventAndWatches(
     name string,
-    event Event,
+    event ExecuteFn,
     watches Watches,
 ) Module {
     return createModuleInternally(name, event, watches)
@@ -30,7 +30,7 @@ func createModuleWithEventAndWatches(
 
 func createModuleInternally(
     name string,
-    event Event,
+    event ExecuteFn,
     watches Watches,
 ) Module {
     out := module{
@@ -53,7 +53,7 @@ func (obj *module) HasEvent() bool {
 }
 
 // Event returns the event
-func (obj *module) Event() Event {
+func (obj *module) Event() ExecuteFn {
     return obj.event
 }
 

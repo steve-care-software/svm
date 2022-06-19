@@ -6,7 +6,7 @@ import (
 
 type moduleBuilder struct {
     name string
-    event Event
+    event ExecuteFn
     watches Watches
 }
 
@@ -32,7 +32,7 @@ func (app *moduleBuilder) WithName(name string) ModuleBuilder {
 }
 
 // WithEvent adds an event to the builder
-func (app *moduleBuilder) WithEvent(event Event) ModuleBuilder {
+func (app *moduleBuilder) WithEvent(event ExecuteFn) ModuleBuilder {
     app.event = event
     return app
 }

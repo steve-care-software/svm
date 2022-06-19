@@ -38,10 +38,10 @@ func (app *watchesBuilder) Now() (Watches, error) {
         return nil, errors.New("there must be at least 1 Watch in order to build a Watches instance")
     }
 
-    mp := map[string]Watch{}
+    mp := map[string][]Watch{}
     for _, oneWatch := range(app.list) {
         keyname := oneWatch.Module()
-        mp[keyname] = oneWatch
+        mp[keyname] = append(mp[keyname], oneWatch)
     }
 
     if len(mp) != len(app.list) {

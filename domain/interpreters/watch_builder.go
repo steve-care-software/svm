@@ -6,7 +6,7 @@ import (
 
 type watchBuilder struct {
     module string
-    event Event
+    event WatchEvent
 }
 
 func createWatchBuilder() WatchBuilder {
@@ -30,7 +30,7 @@ func (app *watchBuilder) WithModule(module string) WatchBuilder {
 }
 
 // WithEvent adds an event to the builder
-func (app *watchBuilder) WithEvent(event Event) WatchBuilder {
+func (app *watchBuilder) WithEvent(event WatchEvent) WatchBuilder {
     app.event = event
     return app
 }

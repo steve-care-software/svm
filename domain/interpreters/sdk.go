@@ -4,11 +4,14 @@ import (
     "github.com/steve-care-software/svm/domain/parsers"
 )
 
-// AssignFn represents the assign func
-type AssignFn func(input parsers.Variables, value string) (parsers.Variables, error)
-
 // ExecuteFn represents the execute func
-type ExecuteFn func(input parsers.Variables, application string) (parsers.Variables, error)
+type ExecuteFn func(input parsers.Variables, application string) (string, error)
+
+// EnterWatchFn represents the enterWatchFn func
+type EnterWatchFn func(input parsers.Variables, execOutput parsers.Variable, application string) error
+
+// ExitWatchFn represents the exitWatchFn func
+type ExitWatchFn func(input parsers.Variables, application string) error
 
 // NewModulesBuilder creates a new modules builder
 func NewModulesBuilder() ModulesBuilder {
@@ -18,6 +21,11 @@ func NewModulesBuilder() ModulesBuilder {
 // NewModuleBuilder creates a new module builder
 func NewModuleBuilder() ModuleBuilder {
     return createModuleBuilder()
+}
+
+// NewEventBuilder creates a new event builder
+func NewEventBuilder() EventBuilder {
+    return createEventBuilder()
 }
 
 // NewWatchesBuilder creates a new watches builder
@@ -30,14 +38,9 @@ func NewWatchBuilder() WatchBuilder {
     return createWatchBuilder()
 }
 
-// NewEventBuilder creates a new event builder
-func NewEventBuilder() EventBuilder {
-    return createEventBuilder()
-}
-
-// NewEventDefinitionBuilder creates a new event definition builder
-func NewEventDefinitionBuilder() EventDefinitionBuilder {
-    return createEventDefinitionBuilder()
+// NewWatchEventBuilder creates a new watch event builder
+func NewWatchEventBuilder() WatchEventBuilder {
+    return createWatchEventBuilder()
 }
 
 // ModulesBuilder represents the modules builder
@@ -57,7 +60,7 @@ type Modules interface {
 type ModuleBuilder interface {
     Create() ModuleBuilder
     WithName(name string) ModuleBuilder
-    WithEvent(event Event) ModuleBuilder
+    WithEvent(event ExecuteFn) ModuleBuilder
     WithWatches(watches Watches) ModuleBuilder
     Now() (Module, error)
 }
@@ -66,9 +69,25 @@ type ModuleBuilder interface {
 type Module interface {
     Name() string
     HasEvent() bool
-    Event() Event
+    Event() ExecuteFn
     HasWatches() bool
     Watches() Watches
+}
+
+// EventBuilder represents an event builder
+type EventBuilder interface {
+    Create() EventBuilder
+    WithEnter(enter ExecuteFn) EventBuilder
+    WithExit(exit ExecuteFn) EventBuilder
+    Now() (Event, error)
+}
+
+// Event represents an event
+type Event interface {
+    HasEnter() bool
+    Enter() ExecuteFn
+    HasExit() bool
+    Exit() ExecuteFn
 }
 
 // WatchesBuilder represents the watches builder
@@ -81,50 +100,35 @@ type WatchesBuilder interface {
 // Watches represents watches
 type Watches interface {
     List() []Watch
-    Find(module string) (Watch, error)
+    Find(module string) ([]Watch, error)
 }
 
 // WatchBuilder represents a watch builder
 type WatchBuilder interface {
     Create() WatchBuilder
     WithModule(module string) WatchBuilder
-    WithEvent(event Event) WatchBuilder
+    WithEvent(event WatchEvent) WatchBuilder
     Now() (Watch, error)
 }
 
 // Watch represents a watch
 type Watch interface {
     Module() string
-    Event() Event
+    Event() WatchEvent
 }
 
-// EventBuilder represents an event builder
-type EventBuilder interface {
-    Create() EventBuilder
-    WithEnter(enter EventDefinition) EventBuilder
-    WithExit(exit EventDefinition) EventBuilder
-    Now() (Event, error)
+// WatchEventBuilder represents a watch event builder
+type WatchEventBuilder interface {
+    Create() WatchEventBuilder
+    WithEnter(enter EnterWatchFn) WatchEventBuilder
+    WithExit(exit ExitWatchFn) WatchEventBuilder
+    Now() (WatchEvent, error)
 }
 
-// Event represents an event
-type Event interface {
+// WatchEvent represents a watch event
+type WatchEvent interface {
     HasEnter() bool
-    Enter() EventDefinition
+    Enter() EnterWatchFn
     HasExit() bool
-    Exit() EventDefinition
-}
-
-// EventDefinitionBuilder represents an event definition builder
-type EventDefinitionBuilder interface {
-    Create() EventDefinitionBuilder
-    WithExecute(execute ExecuteFn) EventDefinitionBuilder
-    WithAssign(assign AssignFn) EventDefinitionBuilder
-    Now() (EventDefinition, error)
-}
-
-// EventDefinition represents an event definition
-type EventDefinition interface {
-    Execute() ExecuteFn
-    HasAssign() bool
-    Assign() AssignFn
+    Exit() ExitWatchFn
 }
