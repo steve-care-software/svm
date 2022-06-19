@@ -12,7 +12,11 @@ const moduleVariableDelimiter = "."
 func NewProgramAdapter(commentLogWriter io.Writer) ProgramAdapter {
     lexerAdapter := lexers.NewProgramAdapter()
     computerFactory := NewComputerFactory()
-    commentLogger := log.New(commentLogWriter, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
+    var commentLogger *log.Logger
+    if commentLogWriter != nil {
+        commentLogger = log.New(commentLogWriter, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
+    }
+
     return createProgramAdapter(lexerAdapter, computerFactory, commentLogger)
 }
 

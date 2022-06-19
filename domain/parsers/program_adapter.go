@@ -50,6 +50,10 @@ func (app *programAdapter) instructions(computer Computer, instructions []lexers
 
 func (app *programAdapter) instruction(computer Computer, instruction lexers.Instruction) error {
     if instruction.IsComment() {
+        if app.commentLogger == nil {
+            return nil
+        }
+        
         comment := instruction.Comment()
         app.commentLogger.Println(comment)
         return nil
@@ -59,7 +63,7 @@ func (app *programAdapter) instruction(computer Computer, instruction lexers.Ins
         parameter := instruction.Parameter()
         return computer.Parameter(parameter)
     }
-    
+
     if instruction.IsModule() {
         module := instruction.Module()
         return computer.Module(module)
