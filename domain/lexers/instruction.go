@@ -1,68 +1,96 @@
 package lexers
 
 type instruction struct {
+    parameter Parameter
     module string
     kind Kind
     variable Variable
     assignment Assignment
     action Action
     execution Execution
+    comment string
+}
+
+func createInstructionWithParameter(
+    parameter Parameter,
+) Instruction {
+    return createInstructionInternally(parameter, "", nil, nil, nil, nil, nil, "")
 }
 
 func createInstructionWithModule(
     module string,
 ) Instruction {
-    return createInstructionInternally(module, nil, nil, nil, nil, nil)
+    return createInstructionInternally(nil, module, nil, nil, nil, nil, nil, "")
 }
 
 func createInstructionWithKind(
     kind Kind,
 ) Instruction {
-    return createInstructionInternally("", kind, nil, nil, nil, nil)
+    return createInstructionInternally(nil, "", kind, nil, nil, nil, nil, "")
 }
 
 func createInstructionWithVariable(
     variable Variable,
 ) Instruction {
-    return createInstructionInternally("", nil, variable, nil, nil, nil)
+    return createInstructionInternally(nil, "", nil, variable, nil, nil, nil, "")
 }
 
 func createInstructionWithAssignment(
     assignment Assignment,
 ) Instruction {
-    return createInstructionInternally("", nil, nil, assignment, nil, nil)
+    return createInstructionInternally(nil, "", nil, nil, assignment, nil, nil, "")
 }
 
 func createInstructionWithAction(
     action Action,
 ) Instruction {
-    return createInstructionInternally("", nil, nil, nil, action, nil)
+    return createInstructionInternally(nil, "", nil, nil, nil, action, nil, "")
 }
 
 func createInstructionWithExecution(
     execution Execution,
 ) Instruction {
-    return createInstructionInternally("", nil, nil, nil, nil, execution)
+    return createInstructionInternally(nil, "", nil, nil, nil, nil, execution, "")
+}
+
+func createInstructionWithComment(
+    comment string,
+) Instruction {
+    return createInstructionInternally(nil, "", nil, nil, nil, nil, nil, comment)
 }
 
 func createInstructionInternally(
+    parameter Parameter,
     module string,
     kind Kind,
     variable Variable,
     assignment Assignment,
     action Action,
     execution Execution,
+    comment string,
 ) Instruction {
     out := instruction{
+        parameter: parameter,
         module: module,
         kind: kind,
         variable: variable,
         assignment: assignment,
         action: action,
         execution: execution,
+        comment: comment,
     }
 
     return &out
+}
+
+// IsParameter returns true if there is a parameter, false otherwise
+func (obj *instruction) IsParameter() bool {
+    return obj.parameter != nil
+}
+
+// Parameter returns the parameter, if any
+func (obj *instruction) Parameter() Parameter {
+    return obj.parameter
 }
 
 // IsModule returns true if there is a module, false otherwise
@@ -123,4 +151,14 @@ func (obj *instruction) IsExecution() bool {
 // Execution returns the execution, if any
 func (obj *instruction) Execution() Execution {
     return obj.execution
+}
+
+// IsComment returns true if there is a comment, false otherwise
+func (obj *instruction) IsComment() bool {
+    return obj.comment != ""
+}
+
+// Comment returns the comment, if any
+func (obj *instruction) Comment() string {
+    return obj.comment
 }

@@ -6,13 +6,11 @@ import (
 
 type programBuilder struct {
     instructions  []Instruction
-    parameters []Parameter
 }
 
 func createProgramBuilder() ProgramBuilder {
     out:= programBuilder{
         instructions: nil,
-        parameters: nil,
     }
 
     return &out
@@ -29,12 +27,6 @@ func (app *programBuilder) WithInstructions(instructions []Instruction) ProgramB
     return app
 }
 
-// WithParameters add parameters to the builder
-func (app *programBuilder) WithParameters(parameters []Parameter) ProgramBuilder {
-    app.parameters = parameters
-    return app
-}
-
 // Now builds a new Program instance
 func (app *programBuilder) Now() (Program, error) {
     if app.instructions != nil && len(app.instructions) <= 0 {
@@ -43,14 +35,6 @@ func (app *programBuilder) Now() (Program, error) {
 
     if app.instructions == nil {
         return nil, errors.New("there must be at least 1 Instruction in order to build a Program instance")
-    }
-
-    if app.parameters != nil && len(app.parameters) <= 0 {
-        app.parameters = nil
-    }
-
-    if app.parameters != nil {
-        return createProgramWithParameters(app.instructions, app.parameters), nil
     }
 
     return createProgram(app.instructions), nil

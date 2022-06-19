@@ -56,8 +56,11 @@ detach myDataVariable:data @ myAppVariable;
 ```
 ### Execution
 ```
-// execute module application that returns an output:
+// execute module application that returns a new variable:
 myModule.myDataType $myOutput = execute myAppVariable;
+
+// execute module application that returns an already declared variable:
+$myOutput = execute myAppVariable;
 
 // execute module application without a return clause:
 execute myAppVariable;

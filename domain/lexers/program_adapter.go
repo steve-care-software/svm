@@ -14,8 +14,10 @@ type programAdapter struct {
     actionBuilder ActionBuilder
     scopeBuilder ScopeBuilder
     assignmentBuilder AssignmentBuilder
+    assigneeBuilder AssigneeBuilder
     variableBuilder VariableBuilder
     kindBuilder KindBuilder
+    commentPrefix string
     moduleKeyname string
     typeKeyname string
     dataKeyname string
@@ -47,8 +49,10 @@ func createProgramAdapter(
     actionBuilder ActionBuilder,
     scopeBuilder ScopeBuilder,
     assignmentBuilder AssignmentBuilder,
+    assigneeBuilder AssigneeBuilder,
     variableBuilder VariableBuilder,
     kindBuilder KindBuilder,
+    commentPrefix string,
     moduleKeyname string,
     typeKeyname string,
     dataKeyname string,
@@ -79,8 +83,10 @@ func createProgramAdapter(
         actionBuilder: actionBuilder,
         scopeBuilder: scopeBuilder,
         assignmentBuilder: assignmentBuilder,
+        assigneeBuilder: assigneeBuilder,
         variableBuilder: variableBuilder,
         kindBuilder: kindBuilder,
+        commentPrefix: commentPrefix,
         moduleKeyname: moduleKeyname,
         typeKeyname: typeKeyname,
         dataKeyname: dataKeyname,
@@ -107,8 +113,8 @@ func createProgramAdapter(
     return &out
 }
 
-// ScriptToProgram converts a script to a Program instance
-func (app *programAdapter) ScriptToProgram(script string) (Program, []byte, error) {
+// ToProgram converts a script to a Program instance
+func (app *programAdapter) ToProgram(script string) (Program, []byte, error) {
     // convert to bytes:
 	bytes := []byte(script)
 
@@ -117,91 +123,19 @@ func (app *programAdapter) ScriptToProgram(script string) (Program, []byte, erro
 }
 
 func (app *programAdapter) program(input []byte) (Program, []byte, error) {
-    // retrieve the parameters:
-    parameters, remainingafterParameters, err := app.parameterDeclarations(input)
-    if err != nil {
-        return nil, nil, err
-    }
-
-    if parameters == nil {
-        remainingafterParameters = input
-    }
-
     // retrieve the instructions:
-    instructions, remaining, err := app.instructions(remainingafterParameters)
+    instructions, remaining, err := app.instructions(input)
     if err != nil {
         return nil, nil, err
     }
 
     // build the program:
-    builder := app.builder.Create().WithInstructions(instructions)
-    if parameters != nil {
-        builder.WithParameters(parameters)
-    }
-
-    ins, err := builder.Now()
+    ins, err :=  app.builder.Create().WithInstructions(instructions).Now()
     if err != nil {
         return nil, nil, err
     }
 
     return ins, app.removeChannelCharactersPrefix(remaining), nil
-}
-
-func (app *programAdapter) parameterDeclarations(input []byte) ([]Parameter, []byte, error) {
-    cpt := uint(0)
-    list := []Parameter{}
-    remaining := input
-    for {
-        parameter, remainingAfterRemaining, err := app.parameterDeclaration(remaining, cpt)
-        if err != nil {
-            return nil, nil, err
-        }
-
-        if parameter == nil {
-            break
-        }
-
-        remaining = remainingAfterRemaining
-        list = append(list, parameter)
-        cpt++
-    }
-
-    return list, remaining, nil
-}
-
-func (app *programAdapter) parameterDeclaration(input []byte, index uint) (Parameter, []byte, error) {
-    builder := app.parameterBuilder.Create()
-    hasInput, remaining := app.hasPrefix(input, app.inputKeyname)
-    if !hasInput {
-        hasOutput, remainingAfterOutput := app.hasPrefix(remaining, app.outputKeyname)
-        if !hasOutput {
-            return nil, nil, nil
-        }
-
-        remaining = remainingAfterOutput
-    }
-
-    if hasInput {
-        builder.IsInput()
-    }
-
-    variable, remainingAfterVariable := app.variableDeclaration(remaining)
-    if variable != nil {
-        builder.WithDeclaration(variable)
-    }
-
-    ins, err := builder.Now()
-    if err != nil {
-        return nil, nil, nil
-    }
-
-    hasLineDelimiter, remainingAfterLineDelimiter := app.hasPrefix(remainingAfterVariable, string(app.lineDelimiter))
-    if !hasLineDelimiter {
-        str := fmt.Sprintf("the line delimiter (%s) was expected after the parameter (index: %d)", string(app.lineDelimiter), index)
-        return nil, nil, errors.New(str)
-    }
-
-    return ins, remainingAfterLineDelimiter, nil
 }
 
 func (app *programAdapter) instructions(input []byte) ([]Instruction, []byte, error) {
@@ -230,11 +164,29 @@ func (app *programAdapter) instruction(input []byte, index uint) (Instruction, [
     found := false
     remaining := input
     builder := app.instructionBuilder.Create()
-    moduleName, remainingAfterModule := app.moduleName(input)
-    if moduleName != "" {
+    comment, remainingAfterComment := app.comment(input)
+    if comment != "" {
         found = true
-        remaining = remainingAfterModule
-        builder.WithModule(moduleName)
+        remaining = remainingAfterComment
+        builder.WithComment(comment)
+    }
+
+    if !found {
+        parameter, remainingAfterParameter := app.parameterDeclaration(input)
+        if parameter != nil {
+            found = true
+            remaining = remainingAfterParameter
+            builder.WithParameter(parameter)
+        }
+    }
+
+    if !found {
+        moduleName, remainingAfterModule := app.moduleName(input)
+        if moduleName != "" {
+            found = true
+            remaining = remainingAfterModule
+            builder.WithModule(moduleName)
+        }
     }
 
     if !found {
@@ -295,6 +247,44 @@ func (app *programAdapter) instruction(input []byte, index uint) (Instruction, [
     }
 
     return ins, remainingAfterLineDelimiter, nil
+}
+
+func (app *programAdapter) comment(input []byte) (string, []byte) {
+    hasPrefix, remainingAfterPrefix := app.hasPrefix(input, app.commentPrefix)
+    if !hasPrefix {
+        return "", nil
+    }
+
+    return app.fetchLineContent(remainingAfterPrefix)
+}
+
+func (app *programAdapter) parameterDeclaration(input []byte) (Parameter, []byte) {
+    builder := app.parameterBuilder.Create()
+    hasInput, remaining := app.hasPrefix(input, app.inputKeyname)
+    if !hasInput {
+        hasOutput, remainingAfterOutput := app.hasPrefix(remaining, app.outputKeyname)
+        if !hasOutput {
+            return nil, nil
+        }
+
+        remaining = remainingAfterOutput
+    }
+
+    if hasInput {
+        builder.IsInput()
+    }
+
+    variable, remainingAfterVariable := app.variableDeclaration(remaining)
+    if variable != nil {
+        builder.WithDeclaration(variable)
+    }
+
+    ins, err := builder.Now()
+    if err != nil {
+        return nil, nil
+    }
+
+    return ins, remainingAfterVariable
 }
 
 func (app *programAdapter) moduleName(input []byte) (string, []byte) {
@@ -392,6 +382,25 @@ func (app *programAdapter) fetchVariableNameUsage(input []byte) (string, []byte)
 }
 
 func (app *programAdapter) assignment(input []byte) (Assignment, []byte) {
+    assignee, remainingAfterAssignee := app.assignee(input)
+    if assignee == nil {
+        return nil, nil
+    }
+
+    content, remaining := app.fetchLineContent(remainingAfterAssignee)
+    if content == "" {
+        return nil, nil
+    }
+
+    ins, err := app.assignmentBuilder.Create().WithContent(content).WithAssignee(assignee).Now()
+    if err != nil {
+        return nil, nil
+    }
+
+    return ins, remaining
+}
+
+func (app *programAdapter) assignee(input []byte) (Assignee, []byte) {
     variable, remainingAfterVariable := app.variableDeclaration(input)
     if variable == nil {
         remainingAfterVariable = input
@@ -414,12 +423,7 @@ func (app *programAdapter) assignment(input []byte) (Assignment, []byte) {
         return nil, nil
     }
 
-    content, remaining := app.fetchAssignmentContent(remainingAfterPrefix)
-    if content == "" {
-        return nil, nil
-    }
-
-    builder := app.assignmentBuilder.Create().WithContent(content)
+    builder := app.assigneeBuilder.Create()
     if variable != nil {
         builder.WithDeclaration(variable)
     }
@@ -433,10 +437,11 @@ func (app *programAdapter) assignment(input []byte) (Assignment, []byte) {
         return nil, nil
     }
 
-    return ins, remaining
+    return ins, remainingAfterPrefix
 }
 
-func (app *programAdapter) fetchAssignmentContent(input []byte) (string, []byte) {
+
+func (app *programAdapter) fetchLineContent(input []byte) (string, []byte) {
     content := []byte{}
     skipNext := false
     for idx, oneByte := range(input) {
@@ -562,22 +567,12 @@ func (app *programAdapter) scope(input []byte) (Scope, []byte) {
 }
 
 func (app *programAdapter) execution(input []byte) (Execution, []byte) {
-    variable, remainingAfterVariable := app.variableDeclaration(input)
-    if variable == nil {
-        remainingAfterVariable = input
+    assignee, remainingAfterAssignee := app.assignee(input)
+    if assignee == nil {
+        remainingAfterAssignee = input
     }
 
-    remaining := remainingAfterVariable
-    if variable != nil {
-        hasEqual, remainingAfterEqual := app.hasPrefix(remainingAfterVariable, string(app.assignmentDelimiter))
-        if !hasEqual {
-            return nil, nil
-        }
-
-        remaining = remainingAfterEqual
-    }
-
-    hasExecute, remainingAfterExecute := app.hasPrefix(remaining, app.executeKeyname)
+    hasExecute, remainingAfterExecute := app.hasPrefix(remainingAfterAssignee, app.executeKeyname)
     if !hasExecute {
         return nil, nil
     }
@@ -588,8 +583,8 @@ func (app *programAdapter) execution(input []byte) (Execution, []byte) {
     }
 
     builder := app.executionBuilder.Create().WithApplication(variableName)
-    if variable != nil {
-        builder.WithDeclaration(variable)
+    if assignee != nil {
+        builder.WithAssignee(assignee)
     }
 
     ins, err := builder.Now()

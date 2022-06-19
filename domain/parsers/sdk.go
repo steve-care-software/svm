@@ -2,15 +2,18 @@ package parsers
 
 import (
     "github.com/steve-care-software/svm/domain/lexers"
+    "log"
+    "io"
 )
 
 const moduleVariableDelimiter = "."
 
 // NewProgramAdapter creates a new program adapter
-func NewProgramAdapter() ProgramAdapter {
+func NewProgramAdapter(commentLogWriter io.Writer) ProgramAdapter {
     lexerAdapter := lexers.NewProgramAdapter()
     computerFactory := NewComputerFactory()
-    return createProgramAdapter(lexerAdapter, computerFactory)
+    commentLogger := log.New(commentLogWriter, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
+    return createProgramAdapter(lexerAdapter, computerFactory, commentLogger)
 }
 
 // NewProgramBuilder creates a new program builder

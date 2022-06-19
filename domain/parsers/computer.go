@@ -98,36 +98,37 @@ func (app *computer) Variable(lexedVariable lexers.Variable) error {
 
 // Assignment declares an assignment
 func (app *computer) Assignment(assignment lexers.Assignment) error {
+    assignee := assignment.Assignee()
+    kind, name, err := app.assignee(assignee)
+    if err != nil {
+        return err
+    }
+
     content := assignment.Content()
-    if assignment.IsName() {
-        name := assignment.Name()
+    ins, err := app.variableBuilder.Create().WithContent(content).WithKind(kind).WithName(name).Now()
+    if err != nil {
+        return err
+    }
+
+    app.variables[name] = ins
+    return nil
+}
+
+// Assignee declares an assignee and returns the variable name
+func(app *computer) assignee(assignee lexers.Assignee) (lexers.Kind, string, error) {
+    if assignee.IsName() {
+        name := assignee.Name()
         if variable, ok := app.variables[name]; ok {
             kind := variable.Kind()
-            ins, err := app.variableBuilder.Create().WithContent(content).WithKind(kind).WithName(name).Now()
-            if err != nil {
-                return err
-            }
-
-            app.variables[name] = ins
+            return kind, name, nil
         }
 
         str := fmt.Sprintf("the variable (%s) is undeclared and therefore cannot be used in an assignment by name", name)
-        return errors.New(str)
+        return nil, "", errors.New(str)
     }
 
-    lexedVariable := assignment.Declaration()
-    kind, name, err := app.validateVariable(lexedVariable)
-    if err != nil {
-        return err
-    }
-
-    variable, err := app.variableBuilder.Create().WithContent(content).WithKind(kind).WithName(name).Now()
-    if err != nil {
-        return err
-    }
-
-    app.variables[name] = variable
-    return nil
+    lexedVariable := assignee.Declaration()
+    return app.validateVariable(lexedVariable)
 }
 
 // Action declares an action
@@ -226,8 +227,13 @@ func (app *computer) Execute(execution lexers.Execution) error {
         }
 
         builder := app.executionBuilder.Create().WithApplication(appIns)
-        if execution.HasDeclaration() {
-            declName := execution.Declaration().Name()
+        if execution.HasAssignee() {
+            assignee := execution.Assignee()
+            _, declName, err := app.assignee(assignee)
+            if err != nil {
+                return err
+            }
+
             if _, ok := app.variables[declName]; !ok {
                 str := fmt.Sprintf("the output variable (name: %s) is undeclared, therefore the requested Execution (application name: %s) cannot be executed", declName, application)
                 return errors.New(str)

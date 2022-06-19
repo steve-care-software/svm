@@ -5,22 +5,26 @@ import (
 )
 
 type instructionBuilder struct {
+    parameter Parameter
     module string
     kind Kind
     variable Variable
     assignment Assignment
     action Action
     execution Execution
+    comment string
 }
 
 func createInstructionBuilder() InstructionBuilder {
     out:= instructionBuilder{
+        parameter: nil,
         module: "",
         kind: nil,
         variable: nil,
         assignment: nil,
         action: nil,
         execution: nil,
+        comment: "",
     }
 
     return &out
@@ -29,6 +33,12 @@ func createInstructionBuilder() InstructionBuilder {
 // Create initializes the builder
 func (app *instructionBuilder) Create() InstructionBuilder {
     return createInstructionBuilder()
+}
+
+// WithParameter adds a parameter to the builder
+func (app *instructionBuilder) WithParameter(parameter Parameter) InstructionBuilder {
+    app.parameter = parameter
+    return app
 }
 
 // WithModule adds a module to the builder
@@ -67,8 +77,18 @@ func (app *instructionBuilder) WithExecution(execution Execution) InstructionBui
     return app
 }
 
+// WithComment adds a comment to the builder
+func (app *instructionBuilder) WithComment(comment string) InstructionBuilder {
+    app.comment = comment
+    return app
+}
+
 // Now builds a new Instruction instance
 func (app *instructionBuilder) Now() (Instruction, error) {
+    if app.parameter != nil {
+        return createInstructionWithParameter(app.parameter), nil
+    }
+
     if app.module != "" {
         return createInstructionWithModule(app.module), nil
     }
@@ -91,6 +111,10 @@ func (app *instructionBuilder) Now() (Instruction, error) {
 
     if app.execution != nil {
         return createInstructionWithExecution(app.execution), nil
+    }
+
+    if app.comment != "" {
+        return createInstructionWithComment(app.comment), nil
     }
 
     return nil, errors.New("the Instruction is invalid")

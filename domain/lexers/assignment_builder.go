@@ -6,15 +6,13 @@ import (
 
 type assignmentBuilder struct {
     content string
-    name string
-    declaration Variable
+    assignee Assignee
 }
 
 func createAssignmentBuilder() AssignmentBuilder {
     out := assignmentBuilder{
         content: "",
-        name: "",
-        declaration: nil,
+        assignee: nil,
     }
 
     return &out
@@ -31,15 +29,9 @@ func (app *assignmentBuilder) WithContent(content string) AssignmentBuilder {
     return app
 }
 
-// WithName adds a name to the builder
-func (app *assignmentBuilder) WithName(name string) AssignmentBuilder {
-    app.name = name
-    return app
-}
-
-// WithDeclaration adds a declaration to the builder
-func (app *assignmentBuilder) WithDeclaration(declaration Variable) AssignmentBuilder {
-    app.declaration = declaration
+// WithAssignee adds an assignee to the builder
+func (app *assignmentBuilder) WithAssignee(assignee Assignee) AssignmentBuilder {
+    app.assignee = assignee
     return app
 }
 
@@ -49,13 +41,9 @@ func (app *assignmentBuilder) Now() (Assignment, error) {
         return nil, errors.New("the content is mandatory in order to build an Assignment instance")
     }
 
-    if app.name != "" {
-        return createAssignmentWithName(app.content, app.name), nil
+    if app.assignee == nil {
+        return nil, errors.New("the assignee is mandatory in order to build an Assignment instance")
     }
 
-    if app.declaration != nil {
-        return createAssignmentWithDeclaration(app.content, app.declaration), nil
-    }
-
-    return nil, errors.New("the Assignment is invalid")
+    return createAssignment(app.content, app.assignee), nil
 }

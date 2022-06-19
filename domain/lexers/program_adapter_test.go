@@ -5,37 +5,14 @@ import (
 	"fmt"
 )
 
-func TestAdapter_withModule_withParameters_withoutRemaining_withInstructionLineDelimiter_withParameterLineDelimiter_isSuccess(t *testing.T) {
+func TestAdapter_withComment_withoutRemaining_withInstructionLineDelimiter_withParameterLineDelimiter_isSuccess(t *testing.T) {
 	script := `
-		-> myModule.myType $input;
-		<- myModule.myType $output;
-		module myModule;
+		// this is a comment;
 	`
 
-	program, remaining, err := NewProgramAdapter().ScriptToProgram(script)
+	program, remaining, err := NewProgramAdapter().ToProgram(script)
 	if err != nil {
 		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())
-		return
-	}
-
-	if !program.HasParameters() {
-		t.Errorf("the program was expecting parameters")
-		return
-	}
-
-	parameters := program.Parameters()
-	if len(parameters) != 2 {
-		t.Errorf("%d parameters were expected, %d returned", 2, len(parameters))
-		return
-	}
-
-	if !parameters[0].IsInput() {
-		t.Errorf("the parameter (index: 0) was expected to be an input")
-		return
-	}
-
-	if parameters[1].IsInput() {
-		t.Errorf("the parameter (index: 1) was NOT expected to be an input")
 		return
 	}
 
@@ -46,6 +23,118 @@ func TestAdapter_withModule_withParameters_withoutRemaining_withInstructionLineD
 	}
 
 	ins := instructions[0]
+	if ins.IsParameter() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
+	if !ins.IsComment() {
+		t.Errorf("the instruction was expected to be a coment")
+		return
+	}
+
+	str := ins.Comment()
+	if str != " this is a comment" {
+		t.Errorf("the comment was expected to be '%s', '%s' returned", " this is a comment", str)
+		return
+	}
+
+	if ins.IsModule() {
+		t.Errorf("the instruction was expected to NOT be a module")
+		return
+	}
+
+	if ins.IsKind() {
+		t.Errorf("the instruction was NOT expected to be a type declaration")
+		return
+	}
+
+	if ins.IsVariable() {
+		t.Errorf("the instruction was NOT expected to be a variable declaration")
+		return
+	}
+
+	if ins.IsAssignment() {
+		t.Errorf("the instruction was NOT expected to be an assignment")
+		return
+	}
+
+	if ins.IsAction() {
+		t.Errorf("the instruction was NOT expected to be an action")
+		return
+	}
+
+	if ins.IsExecution() {
+		t.Errorf("the instruction was NOT expected to be an execution")
+		return
+	}
+
+	if len(remaining) > 0 {
+		t.Errorf("the remaining was expected to be empty, %v returned", remaining)
+		return
+	}
+}
+
+
+func TestAdapter_withModule_withParameters_withoutRemaining_withInstructionLineDelimiter_withParameterLineDelimiter_isSuccess(t *testing.T) {
+	script := `
+		-> myModule.myType $input;
+		<- myModule.myType $output;
+		module myModule;
+	`
+
+	program, remaining, err := NewProgramAdapter().ToProgram(script)
+	if err != nil {
+		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())
+		return
+	}
+
+	instructions := program.Instructions()
+	if len(instructions) != 3 {
+		t.Errorf("the program was expecting %d instruction, %d returned", 3, len(instructions))
+		return
+	}
+
+	firstInstruction := instructions[0]
+	if !firstInstruction.IsParameter() {
+		t.Errorf("the first instruction was expected to be a parameter")
+		return
+	}
+
+	firstParameter := instructions[0].Parameter()
+	if !firstParameter.IsInput() {
+		t.Errorf("the parameter (index: 0) was expected to be an input")
+		return
+	}
+
+	if !firstParameter.IsInput() {
+		t.Errorf("the parameter (index: 0) was expected to be an input")
+		return
+	}
+
+	secondInstruction := instructions[1]
+	if !secondInstruction.IsParameter() {
+		t.Errorf("the second instruction was expected to be a parameter")
+		return
+	}
+
+	secondParameter := instructions[1].Parameter()
+	if secondParameter.IsInput() {
+		t.Errorf("the parameter (index: 1) was NOT expected to be an input")
+		return
+	}
+
+	ins := instructions[2]
+	if ins.IsParameter() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
+	if ins.IsComment() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
 	if !ins.IsModule() {
 		t.Errorf("the instruction was expected to be a module")
 		return
@@ -90,14 +179,9 @@ func TestAdapter_withModule_withParameters_withoutRemaining_withInstructionLineD
 
 func TestAdapter_withModule_withoutParameters_withoutRemaining_withLineDelimiter_isSuccess(t *testing.T) {
 	script := "module myModule;"
-	program, remaining, err := NewProgramAdapter().ScriptToProgram(script)
+	program, remaining, err := NewProgramAdapter().ToProgram(script)
 	if err != nil {
 		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())
-		return
-	}
-
-	if program.HasParameters() {
-		t.Errorf("the program was NOT expecting parameters")
 		return
 	}
 
@@ -108,6 +192,16 @@ func TestAdapter_withModule_withoutParameters_withoutRemaining_withLineDelimiter
 	}
 
 	ins := instructions[0]
+	if ins.IsParameter() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
+	if ins.IsComment() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
 	if !ins.IsModule() {
 		t.Errorf("the instruction was expected to be a module")
 		return
@@ -152,14 +246,9 @@ func TestAdapter_withModule_withoutParameters_withoutRemaining_withLineDelimiter
 
 func TestAdapter_withVariableDeclaration_withoutRemaining_withLineDelimiter_isSuccess(t *testing.T) {
 	script := "myModule.myType $myVariable;"
-	program, remaining, err := NewProgramAdapter().ScriptToProgram(script)
+	program, remaining, err := NewProgramAdapter().ToProgram(script)
 	if err != nil {
 		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())
-		return
-	}
-
-	if program.HasParameters() {
-		t.Errorf("the program was NOT expecting parameters")
 		return
 	}
 
@@ -170,6 +259,16 @@ func TestAdapter_withVariableDeclaration_withoutRemaining_withLineDelimiter_isSu
 	}
 
 	ins := instructions[0]
+	if ins.IsParameter() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
+	if ins.IsComment() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
 	if ins.IsModule() {
 		t.Errorf("the instruction was expected to NOT be a module")
 		return
@@ -227,14 +326,9 @@ func TestAdapter_withVariableDeclaration_withoutRemaining_withLineDelimiter_isSu
 
 func TestAdapter_withTypeDeclaration_isData_withoutParameters_withoutRemaining_withLineDelimiter_isSuccess(t *testing.T) {
 	script := "type data myModule.myDataType;"
-	program, remaining, err := NewProgramAdapter().ScriptToProgram(script)
+	program, remaining, err := NewProgramAdapter().ToProgram(script)
 	if err != nil {
 		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())
-		return
-	}
-
-	if program.HasParameters() {
-		t.Errorf("the program was NOT expecting parameters")
 		return
 	}
 
@@ -245,6 +339,16 @@ func TestAdapter_withTypeDeclaration_isData_withoutParameters_withoutRemaining_w
 	}
 
 	ins := instructions[0]
+	if ins.IsParameter() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
+	if ins.IsComment() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
 	if ins.IsModule() {
 		t.Errorf("the instruction was NOT expected to be a module")
 		return
@@ -303,14 +407,9 @@ func TestAdapter_withTypeDeclaration_isData_withoutParameters_withoutRemaining_w
 
 func TestAdapter_withTypeDeclaration_isApplication_withoutParameters_withoutRemaining_withLineDelimiter_isSuccess(t *testing.T) {
 	script := "type application myModule.myApplicationType;"
-	program, remaining, err := NewProgramAdapter().ScriptToProgram(script)
+	program, remaining, err := NewProgramAdapter().ToProgram(script)
 	if err != nil {
 		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())
-		return
-	}
-
-	if program.HasParameters() {
-		t.Errorf("the program was NOT expecting parameters")
 		return
 	}
 
@@ -321,6 +420,16 @@ func TestAdapter_withTypeDeclaration_isApplication_withoutParameters_withoutRema
 	}
 
 	ins := instructions[0]
+	if ins.IsParameter() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
+	if ins.IsComment() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
 	if ins.IsModule() {
 		t.Errorf("the instruction was NOT expected to be a module")
 		return
@@ -379,14 +488,9 @@ func TestAdapter_withTypeDeclaration_isApplication_withoutParameters_withoutRema
 func TestAdapter_withAssignment_withVariableDeclaration_withoutParameters_withoutRemaining_withLineDelimiter_isSuccess(t *testing.T) {
 	expectedContent := " this is an escaped: \\; and other characters"
 	script := fmt.Sprintf("myModule.myType $myVariable =%s;", expectedContent)
-	program, remaining, err := NewProgramAdapter().ScriptToProgram(script)
+	program, remaining, err := NewProgramAdapter().ToProgram(script)
 	if err != nil {
 		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())
-		return
-	}
-
-	if program.HasParameters() {
-		t.Errorf("the program was NOT expecting parameters")
 		return
 	}
 
@@ -397,6 +501,16 @@ func TestAdapter_withAssignment_withVariableDeclaration_withoutParameters_withou
 	}
 
 	ins := instructions[0]
+	if ins.IsParameter() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
+	if ins.IsComment() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
 	if ins.IsModule() {
 		t.Errorf("the instruction was NOT expected to be a module")
 		return
@@ -424,17 +538,18 @@ func TestAdapter_withAssignment_withVariableDeclaration_withoutParameters_withou
 		return
 	}
 
-	if !assignment.IsDeclaration() {
-		t.Errorf("the assignment was expected to contain a variable declaration")
+	assignee := assignment.Assignee()
+	if !assignee.IsDeclaration() {
+		t.Errorf("the assignee was expected to contain a variable declaration")
 		return
 	}
 
-	if assignment.IsName() {
-		t.Errorf("the assignment was expected to NOT contain a name")
+	if assignee.IsName() {
+		t.Errorf("the assignee was expected to NOT contain a name")
 		return
 	}
 
-	variable := assignment.Declaration()
+	variable := assignee.Declaration()
 	retModule := variable.Module()
 	if retModule != "myModule" {
 		t.Errorf("the module was expected to be '%s', '%s' returned", "myModule", retModule)
@@ -473,14 +588,9 @@ func TestAdapter_withAssignment_withVariableDeclaration_withoutParameters_withou
 func TestAdapter_withAssignment_withName_withoutParameters_withoutRemaining_withLineDelimiter_isSuccess(t *testing.T) {
 	expectedContent := " this is an escaped: \\; and other characters"
 	script := fmt.Sprintf("$myVariable =%s;", expectedContent)
-	program, remaining, err := NewProgramAdapter().ScriptToProgram(script)
+	program, remaining, err := NewProgramAdapter().ToProgram(script)
 	if err != nil {
 		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())
-		return
-	}
-
-	if program.HasParameters() {
-		t.Errorf("the program was NOT expecting parameters")
 		return
 	}
 
@@ -491,6 +601,16 @@ func TestAdapter_withAssignment_withName_withoutParameters_withoutRemaining_with
 	}
 
 	ins := instructions[0]
+	if ins.IsParameter() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
+	if ins.IsComment() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
 	if ins.IsModule() {
 		t.Errorf("the instruction was NOT expected to be a module")
 		return
@@ -518,17 +638,18 @@ func TestAdapter_withAssignment_withName_withoutParameters_withoutRemaining_with
 		return
 	}
 
-	if assignment.IsDeclaration() {
-		t.Errorf("the assignment was expected to NOT contain a variable declaration")
+	assignee := assignment.Assignee()
+	if assignee.IsDeclaration() {
+		t.Errorf("the assignee was expected to NOT contain a variable declaration")
 		return
 	}
 
-	if !assignment.IsName() {
-		t.Errorf("the assignment was expected to contain a name")
+	if !assignee.IsName() {
+		t.Errorf("the assignee was expected to contain a name")
 		return
 	}
 
-	retName := assignment.Name()
+	retName := assignee.Name()
 	if retName != "myVariable" {
 		t.Errorf("the variable name was expected to be '%s', '%s' returned", "myVariable", retName)
 		return
@@ -553,14 +674,9 @@ func TestAdapter_withAssignment_withName_withoutParameters_withoutRemaining_with
 
 func TestAdapter_withAction_isAttach_withoutParameters_withoutRemaining_withLineDelimiter_isSuccess(t *testing.T) {
 	script := "attach myDataVariable:data @ myAppVariable;"
-	program, remaining, err := NewProgramAdapter().ScriptToProgram(script)
+	program, remaining, err := NewProgramAdapter().ToProgram(script)
 	if err != nil {
 		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())
-		return
-	}
-
-	if program.HasParameters() {
-		t.Errorf("the program was NOT expecting parameters")
 		return
 	}
 
@@ -571,6 +687,16 @@ func TestAdapter_withAction_isAttach_withoutParameters_withoutRemaining_withLine
 	}
 
 	ins := instructions[0]
+	if ins.IsParameter() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
+	if ins.IsComment() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
 	if ins.IsModule() {
 		t.Errorf("the instruction was NOT expected to be a module")
 		return
@@ -635,14 +761,9 @@ func TestAdapter_withAction_isAttach_withoutParameters_withoutRemaining_withLine
 
 func TestAdapter_withAction_isDetach_withoutParameters_withoutRemaining_withLineDelimiter_isSuccess(t *testing.T) {
 	script := "detach myDataVariable:data @ myAppVariable;"
-	program, remaining, err := NewProgramAdapter().ScriptToProgram(script)
+	program, remaining, err := NewProgramAdapter().ToProgram(script)
 	if err != nil {
 		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())
-		return
-	}
-
-	if program.HasParameters() {
-		t.Errorf("the program was NOT expecting parameters")
 		return
 	}
 
@@ -653,6 +774,16 @@ func TestAdapter_withAction_isDetach_withoutParameters_withoutRemaining_withLine
 	}
 
 	ins := instructions[0]
+	if ins.IsParameter() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
+	if ins.IsComment() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
 	if ins.IsModule() {
 		t.Errorf("the instruction was NOT expected to be a module")
 		return
@@ -717,14 +848,9 @@ func TestAdapter_withAction_isDetach_withoutParameters_withoutRemaining_withLine
 
 func TestAdapter_withExecution_withoutDeclaration_withoutParameters_withoutRemaining_withLineDelimiter_isSuccess(t *testing.T) {
 	script := "execute myAppVariable;"
-	program, remaining, err := NewProgramAdapter().ScriptToProgram(script)
+	program, remaining, err := NewProgramAdapter().ToProgram(script)
 	if err != nil {
 		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())
-		return
-	}
-
-	if program.HasParameters() {
-		t.Errorf("the program was NOT expecting parameters")
 		return
 	}
 
@@ -735,6 +861,16 @@ func TestAdapter_withExecution_withoutDeclaration_withoutParameters_withoutRemai
 	}
 
 	ins := instructions[0]
+	if ins.IsParameter() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
+	if ins.IsComment() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
 	if ins.IsModule() {
 		t.Errorf("the instruction was NOT expected to be a module")
 		return
@@ -766,8 +902,8 @@ func TestAdapter_withExecution_withoutDeclaration_withoutParameters_withoutRemai
 	}
 
 	execution := ins.Execution()
-	if execution.HasDeclaration() {
-		t.Errorf("the execution was expected to NOT contain a variable declaration")
+	if execution.HasAssignee() {
+		t.Errorf("the execution was expected to NOT contain an assignee")
 		return
 	}
 
@@ -785,14 +921,9 @@ func TestAdapter_withExecution_withoutDeclaration_withoutParameters_withoutRemai
 
 func TestAdapter_withExecution_withDeclaration_withoutParameters_withoutRemaining_withLineDelimiter_isSuccess(t *testing.T) {
 	script := "myModule.myDataType $myOutput = execute myAppVariable;"
-	program, remaining, err := NewProgramAdapter().ScriptToProgram(script)
+	program, remaining, err := NewProgramAdapter().ToProgram(script)
 	if err != nil {
 		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())
-		return
-	}
-
-	if program.HasParameters() {
-		t.Errorf("the program was NOT expecting parameters")
 		return
 	}
 
@@ -803,6 +934,16 @@ func TestAdapter_withExecution_withDeclaration_withoutParameters_withoutRemainin
 	}
 
 	ins := instructions[0]
+	if ins.IsParameter() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
+	if ins.IsComment() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
 	if ins.IsModule() {
 		t.Errorf("the instruction was NOT expected to be a module")
 		return
@@ -834,14 +975,104 @@ func TestAdapter_withExecution_withDeclaration_withoutParameters_withoutRemainin
 	}
 
 	execution := ins.Execution()
-	if !execution.HasDeclaration() {
-		t.Errorf("the execution was expected to contain a variable declaration")
+	if !execution.HasAssignee() {
+		t.Errorf("the execution was expected to contain an assignee")
 		return
 	}
 
-	declaration := execution.Declaration()
-	if declaration.Name() != "myOutput" {
-		t.Errorf("the variable declaration name was expected to be %s, %s returned", "myOutput", declaration.Name())
+	assignee := execution.Assignee()
+	if assignee.IsName() {
+		t.Errorf("the assignee was expected to NOT be a name")
+		return
+	}
+
+	if !assignee.IsDeclaration() {
+		t.Errorf("the assignee was expected to be a declaration")
+		return
+	}
+
+	retApplication := execution.Application()
+	if retApplication != "myAppVariable" {
+		t.Errorf("the application was expected to be %s, %s returned", "myAppVariable", retApplication)
+		return
+	}
+
+	if len(remaining) > 0 {
+		t.Errorf("the remaining was expected to be empty, %v returned", remaining)
+		return
+	}
+}
+
+
+func TestAdapter_withExecution_withAssignee_withName_withoutParameters_withoutRemaining_withLineDelimiter_isSuccess(t *testing.T) {
+	script := "$myOutput = execute myAppVariable;"
+	program, remaining, err := NewProgramAdapter().ToProgram(script)
+	if err != nil {
+		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())
+		return
+	}
+
+	instructions := program.Instructions()
+	if len(instructions) != 1 {
+		t.Errorf("the program was expecting %d instruction, %d returned", 1, len(instructions))
+		return
+	}
+
+	ins := instructions[0]
+	if ins.IsParameter() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
+	if ins.IsComment() {
+		t.Errorf("the instruction was expected to NOT be a coment")
+		return
+	}
+
+	if ins.IsModule() {
+		t.Errorf("the instruction was NOT expected to be a module")
+		return
+	}
+
+	if ins.IsKind() {
+		t.Errorf("the instruction was expected to NOT be a type declaration")
+		return
+	}
+
+	if ins.IsVariable() {
+		t.Errorf("the instruction was expected to NOT be a variable declaration")
+		return
+	}
+
+	if ins.IsAssignment() {
+		t.Errorf("the instruction was expected to NOT be an assignment")
+		return
+	}
+
+	if ins.IsAction() {
+		t.Errorf("the instruction was expected to NOT be an action")
+		return
+	}
+
+	if !ins.IsExecution() {
+		t.Errorf("the instruction was expected to be an execution")
+		return
+	}
+
+	execution := ins.Execution()
+	if !execution.HasAssignee() {
+		t.Errorf("the execution was expected to contain an assignee")
+		return
+	}
+
+	assignee := execution.Assignee()
+	if !assignee.IsName() {
+		t.Errorf("the assignee was expected to be a name")
+		return
+	}
+
+	if assignee.Name() != "myOutput" {
+		t.Errorf("the variable declaration name was expected to be %s, %s returned", "myOutput", assignee.Name())
 		return
 	}
 

@@ -6,13 +6,13 @@ import (
 
 type executionBuilder struct {
     application string
-    declaration Variable
+    assignee Assignee
 }
 
 func createExecutionBuilder() ExecutionBuilder {
     out := executionBuilder{
         application: "",
-        declaration: nil,
+        assignee: nil,
     }
 
     return &out
@@ -29,9 +29,9 @@ func (app *executionBuilder) WithApplication(application string) ExecutionBuilde
     return app
 }
 
-// WithDeclaration adds a declaration to the builder
-func (app *executionBuilder) WithDeclaration(declaration Variable) ExecutionBuilder {
-    app.declaration = declaration
+// WithAssignee adds a assignee to the builder
+func (app *executionBuilder) WithAssignee(assignee Assignee) ExecutionBuilder {
+    app.assignee = assignee
     return app
 }
 
@@ -41,8 +41,8 @@ func (app *executionBuilder) Now() (Execution, error) {
         return nil, errors.New("the application is mandatory in order to build an Execution instance")
     }
 
-    if app.declaration != nil {
-        return createExecutionWithDeclaration(app.application, app.declaration), nil
+    if app.assignee != nil {
+        return createExecutionWithAssignee(app.application, app.assignee), nil
     }
 
     return createExecution(app.application), nil

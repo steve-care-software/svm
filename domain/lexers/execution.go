@@ -2,7 +2,7 @@ package lexers
 
 type execution struct {
     application string
-    declaration Variable
+    assignee Assignee
 }
 
 func createExecution(
@@ -11,20 +11,20 @@ func createExecution(
     return createExecutionInternally(application, nil)
 }
 
-func createExecutionWithDeclaration(
+func createExecutionWithAssignee(
     application string,
-    declaration Variable,
+    assignee Assignee,
 ) Execution {
-    return createExecutionInternally(application, declaration)
+    return createExecutionInternally(application, assignee)
 }
 
 func createExecutionInternally(
     application string,
-    declaration Variable,
+    assignee Assignee,
 ) Execution {
     out := execution{
         application: application,
-        declaration: declaration,
+        assignee: assignee,
     }
 
     return &out
@@ -35,12 +35,12 @@ func (obj *execution) Application() string {
     return obj.application
 }
 
-// HasDeclaration returns true if there is a declaration, false otherwise
-func (obj *execution) HasDeclaration() bool {
-    return obj.declaration != nil
+// HasAssignee returns true if there is a assignee, false otherwise
+func (obj *execution) HasAssignee() bool {
+    return obj.assignee != nil
 }
 
-// Declaration returns the declaration, if any
-func (obj *execution) Declaration() Variable {
-    return obj.declaration
+// Assignee returns the assignee, if any
+func (obj *execution) Assignee() Assignee {
+    return obj.assignee
 }

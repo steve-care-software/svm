@@ -19,8 +19,10 @@ func NewProgramAdapter() ProgramAdapter {
 	actionBuilder := NewActionBuilder()
 	scopeBuilder := NewScopeBuilder()
 	assignmentBuilder := NewAssignmentBuilder()
+	assigneeBuilder := NewAssigneeBuilder()
 	variableBuilder := NewVariableBuilder()
 	kindBuilder := NewKindBuilder()
+	commentPrefix := "//"
 	moduleKeyname := "module"
     typeKeyname := "type"
     dataKeyname := "data"
@@ -56,8 +58,10 @@ func NewProgramAdapter() ProgramAdapter {
 		actionBuilder,
 		scopeBuilder,
 		assignmentBuilder,
+		assigneeBuilder,
 		variableBuilder,
 		kindBuilder,
+		commentPrefix,
 		moduleKeyname,
 	    typeKeyname,
 	    dataKeyname,
@@ -117,6 +121,11 @@ func NewAssignmentBuilder() AssignmentBuilder {
     return createAssignmentBuilder()
 }
 
+// NewAssigneeBuilder creates a new assignee builder
+func NewAssigneeBuilder() AssigneeBuilder {
+	return createAssigneeBuilder()
+}
+
 // NewVariableBuilder creates a new variable builder
 func NewVariableBuilder() VariableBuilder {
     return createVariableBuilder()
@@ -130,22 +139,53 @@ func NewKindBuilder() KindBuilder {
 
 // ProgramAdapter represents a program adapter
 type ProgramAdapter interface {
-	ScriptToProgram(script string) (Program, []byte, error)
+	ToProgram(script string) (Program, []byte, error)
 }
 
 // ProgramBuilder represents a program builder
 type ProgramBuilder interface {
 	Create() ProgramBuilder
 	WithInstructions(instructions []Instruction) ProgramBuilder
-	WithParameters(parameters []Parameter) ProgramBuilder
 	Now() (Program, error)
 }
 
 // Program represents a program
 type Program interface {
 	Instructions() []Instruction
-	HasParameters() bool
-	Parameters() []Parameter
+}
+
+// InstructionBuilder represents an instruction builder
+type InstructionBuilder interface {
+	Create() InstructionBuilder
+	WithParameter(parameter Parameter) InstructionBuilder
+	WithModule(module string) InstructionBuilder
+	WithKind(kind Kind) InstructionBuilder
+	WithVariable(variable Variable) InstructionBuilder
+	WithAssignment(assignment Assignment) InstructionBuilder
+	WithAction(action Action) InstructionBuilder
+	WithExecution(execution Execution) InstructionBuilder
+	WithComment(comment string) InstructionBuilder
+	Now() (Instruction, error)
+}
+
+// Instruction represents an instruction
+type Instruction interface {
+	IsParameter() bool
+	Parameter() Parameter
+	IsModule() bool
+	Module() string
+	IsKind() bool
+	Kind() Kind
+	IsVariable() bool
+	Variable() Variable
+	IsAssignment() bool
+	Assignment() Assignment
+	IsAction() bool
+	Action() Action
+	IsExecution() bool
+	Execution() Execution
+	IsComment() bool
+	Comment() string
 }
 
 // ParameterBuilder represents a parameter builder
@@ -162,47 +202,19 @@ type Parameter interface {
 	IsInput() bool
 }
 
-// InstructionBuilder represents an instruction builder
-type InstructionBuilder interface {
-	Create() InstructionBuilder
-	WithModule(module string) InstructionBuilder
-	WithKind(kind Kind) InstructionBuilder
-	WithVariable(variable Variable) InstructionBuilder
-	WithAssignment(assignment Assignment) InstructionBuilder
-	WithAction(action Action) InstructionBuilder
-	WithExecution(execution Execution) InstructionBuilder
-	Now() (Instruction, error)
-}
-
-// Instruction represents an instruction
-type Instruction interface {
-	IsModule() bool
-	Module() string
-	IsKind() bool
-	Kind() Kind
-	IsVariable() bool
-	Variable() Variable
-	IsAssignment() bool
-	Assignment() Assignment
-	IsAction() bool
-	Action() Action
-	IsExecution() bool
-	Execution() Execution
-}
-
 // ExecutionBuilder represents an execution builder
 type ExecutionBuilder interface {
 	Create() ExecutionBuilder
 	WithApplication(application string) ExecutionBuilder
-	WithDeclaration(declaration Variable) ExecutionBuilder
+	WithAssignee(assignee Assignee) ExecutionBuilder
 	Now() (Execution, error)
 }
 
 // Execution represents an execution
 type Execution interface {
 	Application() string
-	HasDeclaration() bool
-	Declaration() Variable
+	HasAssignee() bool
+	Assignee() Assignee
 }
 
 // ActionBuilder represents an action builder
@@ -239,14 +251,26 @@ type Scope interface {
 type AssignmentBuilder interface {
 	Create() AssignmentBuilder
 	WithContent(content string) AssignmentBuilder
-	WithName(name string) AssignmentBuilder
-	WithDeclaration(declaration Variable) AssignmentBuilder
+	WithAssignee(assignee Assignee) AssignmentBuilder
 	Now() (Assignment, error)
 }
 
 // Assignment represents the assignment
 type Assignment interface {
 	Content() string
+	Assignee() Assignee
+}
+
+// AssigneeBuilder represents an assignee builder
+type AssigneeBuilder interface {
+	Create() AssigneeBuilder
+	WithName(name string) AssigneeBuilder
+	WithDeclaration(declaration Variable) AssigneeBuilder
+	Now() (Assignee, error)
+}
+
+// Assignee represents an assignee
+type Assignee interface {
 	IsName() bool
 	Name() string
 	IsDeclaration() bool
