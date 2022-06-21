@@ -1,60 +1,60 @@
 package parsers
 
 import (
-    "github.com/steve-care-software/svm/domain/lexers"
+	"github.com/steve-care-software/svm/domain/lexers"
 )
 
 type variable struct {
-    kind lexers.Kind
-    name string
-    pContent *string
+	kind     lexers.Kind
+	name     string
+	pContent *string
 }
 
 func createVariable(
-    kind lexers.Kind,
-    name string,
+	kind lexers.Kind,
+	name string,
 ) Variable {
-    return createVariableInternally(kind, name, nil)
+	return createVariableInternally(kind, name, nil)
 }
 
 func createVariableWithContent(
-    kind lexers.Kind,
-    name string,
-    pContent *string,
+	kind lexers.Kind,
+	name string,
+	pContent *string,
 ) Variable {
-    return createVariableInternally(kind, name, pContent)
+	return createVariableInternally(kind, name, pContent)
 }
 
 func createVariableInternally(
-    kind lexers.Kind,
-    name string,
-    pContent *string,
+	kind lexers.Kind,
+	name string,
+	pContent *string,
 ) Variable {
-    out := variable{
-        kind: kind,
-        name: name,
-        pContent: pContent,
-    }
+	out := variable{
+		kind:     kind,
+		name:     name,
+		pContent: pContent,
+	}
 
-    return &out
+	return &out
 }
 
 // Kind returns the kind
 func (obj *variable) Kind() lexers.Kind {
-    return obj.kind
+	return obj.kind
 }
 
 // Name returns the name
 func (obj *variable) Name() string {
-    return obj.name
+	return obj.name
 }
 
 // HasContent returns true if there is content, false otherwise
 func (obj *variable) HasContent() bool {
-    return obj.pContent != nil
+	return obj.pContent != nil
 }
 
 // Content returns the content, if any
 func (obj *variable) Content() *string {
-    return obj.pContent
+	return obj.pContent
 }

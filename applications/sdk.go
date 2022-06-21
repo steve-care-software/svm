@@ -8,8 +8,8 @@ import (
 	"github.com/steve-care-software/svm/domain/parsers"
 )
 
-// NewApplicationBuilder creates a new application builder
-func NewApplicationBuilder(commentLogWriter io.Writer) Builder {
+// NewBuilder creates a new builder
+func NewBuilder(commentLogWriter io.Writer) Builder {
 	lexerAdapter := lexers.NewProgramAdapter()
 	parserAdapter := parsers.NewProgramAdapter(commentLogWriter)
 	variableBuilder := parsers.NewVariableBuilder()

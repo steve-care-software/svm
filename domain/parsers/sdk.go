@@ -1,86 +1,86 @@
 package parsers
 
 import (
-    "github.com/steve-care-software/svm/domain/lexers"
-    "log"
-    "io"
+	"io"
+	"log"
+
+	"github.com/steve-care-software/svm/domain/lexers"
 )
 
 const moduleVariableDelimiter = "."
 
 // NewProgramAdapter creates a new program adapter
 func NewProgramAdapter(commentLogWriter io.Writer) ProgramAdapter {
-    lexerAdapter := lexers.NewProgramAdapter()
-    computerFactory := NewComputerFactory()
-    var commentLogger *log.Logger
-    if commentLogWriter != nil {
-        commentLogger = log.New(commentLogWriter, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
-    }
+	lexerAdapter := lexers.NewProgramAdapter()
+	computerFactory := NewComputerFactory()
+	var commentLogger *log.Logger
+	if commentLogWriter != nil {
+		commentLogger = log.New(commentLogWriter, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
+	}
 
-    return createProgramAdapter(lexerAdapter, computerFactory, commentLogger)
+	return createProgramAdapter(lexerAdapter, computerFactory, commentLogger)
 }
 
 // NewProgramBuilder creates a new program builder
 func NewProgramBuilder() ProgramBuilder {
-    return createProgramBuilder()
+	return createProgramBuilder()
 }
 
 // NewComputerFactory creates a new computer factory
 func NewComputerFactory() ComputerFactory {
-    programBuilder := NewProgramBuilder()
-    executionsBuilder := NewExecutionsBuilder()
-    parametersBuilder := NewParametersBuilder()
-    parameterBuilder := NewParameterBuilder()
-    executionBuilder := NewExecutionBuilder()
-    applicationBuilder := NewApplicationBuilder()
-    variablesBuilder := NewVariablesBuilder()
-    variableBuilder := NewVariableBuilder()
-    return createComputerFactory(
-        programBuilder,
-        executionsBuilder,
-        parametersBuilder,
-        parameterBuilder,
-        executionBuilder,
-        applicationBuilder,
-        variablesBuilder,
-        variableBuilder,
-    )
+	programBuilder := NewProgramBuilder()
+	executionsBuilder := NewExecutionsBuilder()
+	parametersBuilder := NewParametersBuilder()
+	parameterBuilder := NewParameterBuilder()
+	executionBuilder := NewExecutionBuilder()
+	applicationBuilder := NewApplicationBuilder()
+	variablesBuilder := NewVariablesBuilder()
+	variableBuilder := NewVariableBuilder()
+	return createComputerFactory(
+		programBuilder,
+		executionsBuilder,
+		parametersBuilder,
+		parameterBuilder,
+		executionBuilder,
+		applicationBuilder,
+		variablesBuilder,
+		variableBuilder,
+	)
 }
-
 
 // NewParametersBuilder creates a new parameters builder
 func NewParametersBuilder() ParametersBuilder {
-    return createParametersBuilder()
+	return createParametersBuilder()
 }
 
 // NewParameterBuilder creates a new parameter builder
 func NewParameterBuilder() ParameterBuilder {
-    return createParameterBuilder()
+	return createParameterBuilder()
 }
 
 // NewExecutionsBuilder creates a new executions builder
 func NewExecutionsBuilder() ExecutionsBuilder {
-    return createExecutionsBuilder()
+	return createExecutionsBuilder()
 }
 
 // NewExecutionBuilder creates a new execution builder
 func NewExecutionBuilder() ExecutionBuilder {
-    return createExecutionBuilder()
+	return createExecutionBuilder()
 }
 
 // NewApplicationBuilder creates a new application builder
 func NewApplicationBuilder() ApplicationBuilder {
-    return createApplicationBuilder()
+	return createApplicationBuilder()
 }
 
 // NewVariablesBuilder creates a new variables builder
 func NewVariablesBuilder() VariablesBuilder {
-    return createVariablesBuilder()
+	return createVariablesBuilder()
 }
 
 // NewVariableBuilder creates a new variable builder
 func NewVariableBuilder() VariableBuilder {
-    return createVariableBuilder()
+	return createVariableBuilder()
 }
 
 // ProgramAdapter represents a program adapter
@@ -105,14 +105,14 @@ type Program interface {
 
 // ParametersBuilder represents a parameters builder
 type ParametersBuilder interface {
-    Create() ParametersBuilder
-    WithList(list []Parameter) ParametersBuilder
-    Now() (Parameters, error)
+	Create() ParametersBuilder
+	WithList(list []Parameter) ParametersBuilder
+	Now() (Parameters, error)
 }
 
 // Parameters represents the parameters
 type Parameters interface {
-    List() []Parameter
+	List() []Parameter
 }
 
 // ParameterBuilder represents a parameter builder
@@ -131,19 +131,19 @@ type Parameter interface {
 
 // ComputerFactory represents a computer factory
 type ComputerFactory interface {
-    Create() Computer
+	Create() Computer
 }
 
 // Computer represents a parser computer
 type Computer interface {
-    Module(name string) error
-    Kind(kind lexers.Kind) error
-    Variable(variable lexers.Variable) error
-    Assignment(assignment lexers.Assignment) error
-    Action(action lexers.Action) error
-    Execute(execution lexers.Execution) error
-    Parameter(parameter lexers.Parameter) error
-    Program() (Program, error)
+	Module(name string) error
+	Kind(kind lexers.Kind) error
+	Variable(variable lexers.Variable) error
+	Assignment(assignment lexers.Assignment) error
+	Action(action lexers.Action) error
+	Execute(execution lexers.Execution) error
+	Parameter(parameter lexers.Parameter) error
+	Program() (Program, error)
 }
 
 // ExecutionsBuilder represents an executions builder
@@ -156,22 +156,22 @@ type ExecutionsBuilder interface {
 // Executions represents executions
 type Executions interface {
 	List() []Execution
-    Find(name string) (Execution, error)
+	Find(name string) (Execution, error)
 }
 
 // ExecutionBuilder represents an execution builder
 type ExecutionBuilder interface {
-    Create() ExecutionBuilder
-    WithApplication(application Application) ExecutionBuilder
-    WithOutput(output Variable) ExecutionBuilder
-    Now() (Execution, error)
+	Create() ExecutionBuilder
+	WithApplication(application Application) ExecutionBuilder
+	WithOutput(output Variable) ExecutionBuilder
+	Now() (Execution, error)
 }
 
 // Execution represents an execution
 type Execution interface {
-    Application() Application
-    HasOutput() bool
-    Output() Variable
+	Application() Application
+	HasOutput() bool
+	Output() Variable
 }
 
 // ApplicationBuilder represents an application builder
@@ -199,7 +199,7 @@ type VariablesBuilder interface {
 // Variables represents variables
 type Variables interface {
 	List() []Variable
-    Find(module string, variable string) (Variable, error)
+	Find(module string, variable string) (Variable, error)
 }
 
 // VariableBuilder represents a variable builder
@@ -215,6 +215,6 @@ type VariableBuilder interface {
 type Variable interface {
 	Kind() lexers.Kind
 	Name() string
-    HasContent() bool
+	HasContent() bool
 	Content() *string
 }

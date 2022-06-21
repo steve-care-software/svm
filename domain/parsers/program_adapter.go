@@ -1,94 +1,95 @@
 package parsers
 
 import (
-    "github.com/steve-care-software/svm/domain/lexers"
-    "log"
+	"log"
+
+	"github.com/steve-care-software/svm/domain/lexers"
 )
 
 type programAdapter struct {
-    lexerAdapter lexers.ProgramAdapter
-    computerFactory ComputerFactory
-    commentLogger *log.Logger
+	lexerAdapter    lexers.ProgramAdapter
+	computerFactory ComputerFactory
+	commentLogger   *log.Logger
 }
 
 func createProgramAdapter(
-    lexerAdapter lexers.ProgramAdapter,
-    computerFactory ComputerFactory,
-    commentLogger *log.Logger,
-    ) ProgramAdapter {
-    out := programAdapter {
-        lexerAdapter: lexerAdapter,
-        computerFactory: computerFactory,
-        commentLogger: commentLogger,
-    }
+	lexerAdapter lexers.ProgramAdapter,
+	computerFactory ComputerFactory,
+	commentLogger *log.Logger,
+) ProgramAdapter {
+	out := programAdapter{
+		lexerAdapter:    lexerAdapter,
+		computerFactory: computerFactory,
+		commentLogger:   commentLogger,
+	}
 
-    return &out
+	return &out
 }
 
 // ToProgram converts a lexed program to a parsed program
 func (app *programAdapter) ToProgram(lexed lexers.Program) (Program, error) {
-    computer := app.computerFactory.Create()
-    instructions := lexed.Instructions()
-    err := app.instructions(computer, instructions)
-    if err != nil {
-        return nil, err
-    }
+	computer := app.computerFactory.Create()
+	instructions := lexed.Instructions()
+	err := app.instructions(computer, instructions)
+	if err != nil {
+		return nil, err
+	}
 
-    return computer.Program()
+	return computer.Program()
 }
 
 func (app *programAdapter) instructions(computer Computer, instructions []lexers.Instruction) error {
-    for _, oneInstruction := range(instructions) {
-        err := app.instruction(computer, oneInstruction)
-        if err != nil {
-            return err
-        }
-    }
+	for _, oneInstruction := range instructions {
+		err := app.instruction(computer, oneInstruction)
+		if err != nil {
+			return err
+		}
+	}
 
-    return nil
+	return nil
 }
 
 func (app *programAdapter) instruction(computer Computer, instruction lexers.Instruction) error {
-    if instruction.IsComment() {
-        if app.commentLogger == nil {
-            return nil
-        }
-        
-        comment := instruction.Comment()
-        app.commentLogger.Println(comment)
-        return nil
-    }
+	if instruction.IsComment() {
+		if app.commentLogger == nil {
+			return nil
+		}
 
-    if instruction.IsParameter() {
-        parameter := instruction.Parameter()
-        return computer.Parameter(parameter)
-    }
+		comment := instruction.Comment()
+		app.commentLogger.Println(comment)
+		return nil
+	}
 
-    if instruction.IsModule() {
-        module := instruction.Module()
-        return computer.Module(module)
-    }
+	if instruction.IsParameter() {
+		parameter := instruction.Parameter()
+		return computer.Parameter(parameter)
+	}
 
-    if instruction.IsKind() {
-        kind := instruction.Kind()
-        return computer.Kind(kind)
-    }
+	if instruction.IsModule() {
+		module := instruction.Module()
+		return computer.Module(module)
+	}
 
-    if instruction.IsVariable() {
-        variable := instruction.Variable()
-        return computer.Variable(variable)
-    }
+	if instruction.IsKind() {
+		kind := instruction.Kind()
+		return computer.Kind(kind)
+	}
 
-    if instruction.IsAssignment() {
-        assignment := instruction.Assignment()
-        return computer.Assignment(assignment)
-    }
+	if instruction.IsVariable() {
+		variable := instruction.Variable()
+		return computer.Variable(variable)
+	}
 
-    if instruction.IsAction() {
-        action := instruction.Action()
-        return computer.Action(action)
-    }
+	if instruction.IsAssignment() {
+		assignment := instruction.Assignment()
+		return computer.Assignment(assignment)
+	}
 
-    lexedExecution := instruction.Execution()
-    return computer.Execute(lexedExecution)
+	if instruction.IsAction() {
+		action := instruction.Action()
+		return computer.Action(action)
+	}
+
+	lexedExecution := instruction.Execution()
+	return computer.Execute(lexedExecution)
 }

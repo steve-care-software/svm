@@ -1,26 +1,26 @@
 package lexers
 
 type program struct {
-    instructions  []Instruction
+	instructions []Instruction
 }
 
 func createProgram(
-    instructions  []Instruction,
+	instructions []Instruction,
 ) Program {
-    return createProgramInternally(instructions)
+	return createProgramInternally(instructions)
 }
 
 func createProgramInternally(
-    instructions  []Instruction,
+	instructions []Instruction,
 ) Program {
-    out := program{
-        instructions: instructions,
-    }
+	out := program{
+		instructions: instructions,
+	}
 
-    return &out
+	return &out
 }
 
 // Instructions returns the instructions
 func (obj *program) Instructions() []Instruction {
-    return obj.instructions
+	return obj.instructions
 }
