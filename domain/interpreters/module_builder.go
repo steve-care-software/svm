@@ -53,7 +53,7 @@ func (app *moduleBuilder) Now() (Module, error) {
 		return createModuleWithEventAndWatches(app.name, app.event, app.watches), nil
 	}
 
-	if app.event == nil {
+	if app.event != nil {
 		return createModuleWithEvent(app.name, app.event), nil
 	}
 
