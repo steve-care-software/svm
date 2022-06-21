@@ -24,19 +24,19 @@ func NewProgramAdapter() ProgramAdapter {
 	kindBuilder := NewKindBuilder()
 	commentPrefix := "//"
 	moduleKeyname := "module"
-    typeKeyname := "type"
-    dataKeyname := "data"
-    inputKeyname := "->"
-    outputKeyname := "<-"
-    applicationKeyname := "application"
-    attachKeyname := "attach"
-    detachKeyname := "detach"
-    toKeyname := "@"
-    fromKeyname := "@"
-    executeKeyname := "execute"
-    moduleNameCharacters := []byte(letters)
-    typeCharacters := []byte(letters)
-    variableCharacters := []byte(letters)
+	typeKeyname := "type"
+	dataKeyname := "data"
+	inputKeyname := "->"
+	outputKeyname := "<-"
+	applicationKeyname := "application"
+	attachKeyname := "attach"
+	detachKeyname := "detach"
+	toKeyname := "@"
+	fromKeyname := "@"
+	executeKeyname := "execute"
+	moduleNameCharacters := []byte(letters)
+	typeCharacters := []byte(letters)
+	variableCharacters := []byte(letters)
 	channelCharacters := []byte{
 		[]byte("\t")[0],
 		[]byte("\n")[0],
@@ -44,12 +44,13 @@ func NewProgramAdapter() ProgramAdapter {
 		[]byte(" ")[0],
 	}
 
-    scopeDelimiter := []byte(":")[0]
-    lineDelimiter := []byte(";")[0]
-    escapeDelimiter := []byte("\\")[0]
-    assignmentDelimiter :=  []byte("=")[0]
+	scopeDelimiter := []byte(":")[0]
+	lineDelimiter := []byte(";")[0]
+	escapeDelimiter := []byte("\\")[0]
+	assignmentDelimiter := []byte("=")[0]
 	moduleTypeDelimiter := []byte(".")[0]
 	variableNameUsage := []byte("$")[0]
+	lineDelimiterOccurences := uint(2)
 	return createProgramAdapter(
 		builder,
 		parameterBuilder,
@@ -63,32 +64,33 @@ func NewProgramAdapter() ProgramAdapter {
 		kindBuilder,
 		commentPrefix,
 		moduleKeyname,
-	    typeKeyname,
-	    dataKeyname,
-	    inputKeyname,
-	    outputKeyname,
-	    applicationKeyname,
-	    attachKeyname,
-	    detachKeyname,
-	    toKeyname,
-	    fromKeyname,
-	    executeKeyname,
-	    moduleNameCharacters,
-	    typeCharacters,
-	    variableCharacters,
-	    channelCharacters,
-	    scopeDelimiter,
-	    lineDelimiter,
-	    escapeDelimiter,
-	    assignmentDelimiter,
+		typeKeyname,
+		dataKeyname,
+		inputKeyname,
+		outputKeyname,
+		applicationKeyname,
+		attachKeyname,
+		detachKeyname,
+		toKeyname,
+		fromKeyname,
+		executeKeyname,
+		moduleNameCharacters,
+		typeCharacters,
+		variableCharacters,
+		channelCharacters,
+		scopeDelimiter,
+		lineDelimiter,
+		escapeDelimiter,
+		assignmentDelimiter,
 		moduleTypeDelimiter,
 		variableNameUsage,
+		lineDelimiterOccurences,
 	)
 }
 
 // NewProgramBuilder creates a new program builder
 func NewProgramBuilder() ProgramBuilder {
-    return createProgramBuilder()
+	return createProgramBuilder()
 }
 
 // NewParameterBuilder creates a new parameter builder
@@ -98,27 +100,27 @@ func NewParameterBuilder() ParameterBuilder {
 
 // NewInstructionBuilder creates a new instruction builder
 func NewInstructionBuilder() InstructionBuilder {
-    return createInstructionBuilder()
+	return createInstructionBuilder()
 }
 
 // NewExecutionBuilder creates a new execution builder
 func NewExecutionBuilder() ExecutionBuilder {
-    return createExecutionBuilder()
+	return createExecutionBuilder()
 }
 
 // NewActionBuilder creates a new action builder
 func NewActionBuilder() ActionBuilder {
-    return createActionBuilder()
+	return createActionBuilder()
 }
 
 // NewScopeBuilder creates a new scope builder
 func NewScopeBuilder() ScopeBuilder {
-    return createScopeBuilder()
+	return createScopeBuilder()
 }
 
 // NewAssignmentBuilder creates a new assignment builder
 func NewAssignmentBuilder() AssignmentBuilder {
-    return createAssignmentBuilder()
+	return createAssignmentBuilder()
 }
 
 // NewAssigneeBuilder creates a new assignee builder
@@ -128,14 +130,13 @@ func NewAssigneeBuilder() AssigneeBuilder {
 
 // NewVariableBuilder creates a new variable builder
 func NewVariableBuilder() VariableBuilder {
-    return createVariableBuilder()
+	return createVariableBuilder()
 }
 
 // NewKindBuilder creates a new kind builder
 func NewKindBuilder() KindBuilder {
-    return createKindBuilder()
+	return createKindBuilder()
 }
-
 
 // ProgramAdapter represents a program adapter
 type ProgramAdapter interface {
@@ -227,7 +228,7 @@ type ActionBuilder interface {
 }
 
 // Action represents an action
-type Action interface{
+type Action interface {
 	Scope() Scope
 	Application() string
 	IsAttach() bool
@@ -304,7 +305,7 @@ type KindBuilder interface {
 
 // Kind represents a kind
 type Kind interface {
-    Flag() uint8
+	Flag() uint8
 	Module() string
-    Name() string
+	Name() string
 }

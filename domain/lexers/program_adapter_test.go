@@ -1,13 +1,13 @@
 package lexers
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
 
 func TestAdapter_withComment_withoutRemaining_withInstructionLineDelimiter_withParameterLineDelimiter_isSuccess(t *testing.T) {
 	script := `
-		// this is a comment;
+		// this is a comment;;
 	`
 
 	program, remaining, err := NewProgramAdapter().ToProgram(script)
@@ -75,12 +75,11 @@ func TestAdapter_withComment_withoutRemaining_withInstructionLineDelimiter_withP
 	}
 }
 
-
 func TestAdapter_withModule_withParameters_withoutRemaining_withInstructionLineDelimiter_withParameterLineDelimiter_isSuccess(t *testing.T) {
 	script := `
-		-> myModule.myType $input;
-		<- myModule.myType $output;
-		module myModule;
+		-> myModule.myType $input;;
+		<- myModule.myType $output;;
+		module myModule;;
 	`
 
 	program, remaining, err := NewProgramAdapter().ToProgram(script)
@@ -178,7 +177,7 @@ func TestAdapter_withModule_withParameters_withoutRemaining_withInstructionLineD
 }
 
 func TestAdapter_withModule_withoutParameters_withoutRemaining_withLineDelimiter_isSuccess(t *testing.T) {
-	script := "module myModule;"
+	script := "module myModule;;"
 	program, remaining, err := NewProgramAdapter().ToProgram(script)
 	if err != nil {
 		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())
@@ -245,7 +244,7 @@ func TestAdapter_withModule_withoutParameters_withoutRemaining_withLineDelimiter
 }
 
 func TestAdapter_withVariableDeclaration_withoutRemaining_withLineDelimiter_isSuccess(t *testing.T) {
-	script := "myModule.myType $myVariable;"
+	script := "myModule.myType $myVariable;;"
 	program, remaining, err := NewProgramAdapter().ToProgram(script)
 	if err != nil {
 		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())
@@ -325,7 +324,7 @@ func TestAdapter_withVariableDeclaration_withoutRemaining_withLineDelimiter_isSu
 }
 
 func TestAdapter_withTypeDeclaration_isData_withoutParameters_withoutRemaining_withLineDelimiter_isSuccess(t *testing.T) {
-	script := "type data myModule.myDataType;"
+	script := "type data myModule.myDataType;;"
 	program, remaining, err := NewProgramAdapter().ToProgram(script)
 	if err != nil {
 		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())
@@ -373,7 +372,7 @@ func TestAdapter_withTypeDeclaration_isData_withoutParameters_withoutRemaining_w
 	}
 
 	retFlag := kind.Flag()
-	if retFlag & KindData == 0 {
+	if retFlag&KindData == 0 {
 		t.Errorf("the flag (%d) was expected to contain %d (data)", retFlag, KindData)
 		return
 	}
@@ -404,9 +403,8 @@ func TestAdapter_withTypeDeclaration_isData_withoutParameters_withoutRemaining_w
 	}
 }
 
-
 func TestAdapter_withTypeDeclaration_isApplication_withoutParameters_withoutRemaining_withLineDelimiter_isSuccess(t *testing.T) {
-	script := "type application myModule.myApplicationType;"
+	script := "type application myModule.myApplicationType;;"
 	program, remaining, err := NewProgramAdapter().ToProgram(script)
 	if err != nil {
 		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())
@@ -454,7 +452,7 @@ func TestAdapter_withTypeDeclaration_isApplication_withoutParameters_withoutRema
 	}
 
 	retFlag := kind.Flag()
-	if retFlag & KindApplication == 0 {
+	if retFlag&KindApplication == 0 {
 		t.Errorf("the flag (%d) was expected to contain %d (data)", retFlag, KindApplication)
 		return
 	}
@@ -486,8 +484,8 @@ func TestAdapter_withTypeDeclaration_isApplication_withoutParameters_withoutRema
 }
 
 func TestAdapter_withAssignment_withVariableDeclaration_withoutParameters_withoutRemaining_withLineDelimiter_isSuccess(t *testing.T) {
-	expectedContent := " this is an escaped: \\; and other characters"
-	script := fmt.Sprintf("myModule.myType $myVariable =%s;", expectedContent)
+	expectedContent := " this is an escaped: \\;; and other characters"
+	script := fmt.Sprintf("myModule.myType $myVariable =%s;;", expectedContent)
 	program, remaining, err := NewProgramAdapter().ToProgram(script)
 	if err != nil {
 		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())
@@ -584,10 +582,9 @@ func TestAdapter_withAssignment_withVariableDeclaration_withoutParameters_withou
 	}
 }
 
-
 func TestAdapter_withAssignment_withName_withoutParameters_withoutRemaining_withLineDelimiter_isSuccess(t *testing.T) {
-	expectedContent := " this is an escaped: \\; and other characters"
-	script := fmt.Sprintf("$myVariable =%s;", expectedContent)
+	expectedContent := " this is an escaped: \\;; and other characters"
+	script := fmt.Sprintf("$myVariable =%s;;", expectedContent)
 	program, remaining, err := NewProgramAdapter().ToProgram(script)
 	if err != nil {
 		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())
@@ -671,9 +668,8 @@ func TestAdapter_withAssignment_withName_withoutParameters_withoutRemaining_with
 	}
 }
 
-
 func TestAdapter_withAction_isAttach_withoutParameters_withoutRemaining_withLineDelimiter_isSuccess(t *testing.T) {
-	script := "attach myDataVariable:data @ myAppVariable;"
+	script := "attach myDataVariable:data @ myAppVariable;;"
 	program, remaining, err := NewProgramAdapter().ToProgram(script)
 	if err != nil {
 		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())
@@ -758,9 +754,8 @@ func TestAdapter_withAction_isAttach_withoutParameters_withoutRemaining_withLine
 	}
 }
 
-
 func TestAdapter_withAction_isDetach_withoutParameters_withoutRemaining_withLineDelimiter_isSuccess(t *testing.T) {
-	script := "detach myDataVariable:data @ myAppVariable;"
+	script := "detach myDataVariable:data @ myAppVariable;;"
 	program, remaining, err := NewProgramAdapter().ToProgram(script)
 	if err != nil {
 		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())
@@ -845,9 +840,8 @@ func TestAdapter_withAction_isDetach_withoutParameters_withoutRemaining_withLine
 	}
 }
 
-
 func TestAdapter_withExecution_withoutDeclaration_withoutParameters_withoutRemaining_withLineDelimiter_isSuccess(t *testing.T) {
-	script := "execute myAppVariable;"
+	script := "execute myAppVariable;;"
 	program, remaining, err := NewProgramAdapter().ToProgram(script)
 	if err != nil {
 		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())
@@ -920,7 +914,7 @@ func TestAdapter_withExecution_withoutDeclaration_withoutParameters_withoutRemai
 }
 
 func TestAdapter_withExecution_withDeclaration_withoutParameters_withoutRemaining_withLineDelimiter_isSuccess(t *testing.T) {
-	script := "myModule.myDataType $myOutput = execute myAppVariable;"
+	script := "myModule.myDataType $myOutput = execute myAppVariable;;"
 	program, remaining, err := NewProgramAdapter().ToProgram(script)
 	if err != nil {
 		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())
@@ -1003,9 +997,8 @@ func TestAdapter_withExecution_withDeclaration_withoutParameters_withoutRemainin
 	}
 }
 
-
 func TestAdapter_withExecution_withAssignee_withName_withoutParameters_withoutRemaining_withLineDelimiter_isSuccess(t *testing.T) {
-	script := "$myOutput = execute myAppVariable;"
+	script := "$myOutput = execute myAppVariable;;"
 	program, remaining, err := NewProgramAdapter().ToProgram(script)
 	if err != nil {
 		t.Errorf("the error was expected to be nil, error returned: %s", err.Error())

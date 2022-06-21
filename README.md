@@ -19,63 +19,63 @@ if err != nil {
 ### Declaration
 ```
 // module declaration:
-module myModule;
+module myModule;;
 ```
 
 ### Type Declaration
 #### Data type declaration
 ```
 // type declaration:
-type data myModule.myDataType;
+type data myModule.myDataType;;
 ```
 
 #### Application type declaration
 ```
 // type declaration:
-type application myModule.myApplicationType;
+type application myModule.myApplicationType;;
 ```
 
 ### Variable Declaration
 ```
 // variable declaration:
-myModule.myType $myVariable;
+myModule.myType $myVariable;;
 ```
 
 ### Parameter declaration
 The input parameters can be of any data type.
 ```
 // this is variable with an input:
--> myModule.myDataType $myInput;
+-> myModule.myDataType $myInput;;
 
 // this is a variable with an output:
-<- myModule.myDataType $myOutput;
+<- myModule.myDataType $myOutput;;
 ```
 
 ### Variable Assignment
 ```
 // declaration with assignment:
-myModule.myType $myVariable = ANY VALUE EXCEPT NON-ESCAPED SEMI-COLON;
+myModule.myType $myVariable = ANY VALUE EXCEPT NON-ESCAPED SEMI-COLON;;
 
 // assignment of a previously declared variable:
-$myVariable = ANY VALUE EXCEPT NON-ESCAPED SEMI-COLON;
+$myVariable = ANY VALUE EXCEPT NON-ESCAPED SEMI-COLON;;
 ```
 
 ### Attachment (attach/detach)
 ```
 // attach variable to application:
-attach myDataVariable:data @ myAppVariable;
+attach myDataVariable:data @ myAppVariable;;
 
 // detach variable from application:
-detach myDataVariable:data @ myAppVariable;
+detach myDataVariable:data @ myAppVariable;;
 ```
 ## Execution
 ```
 // execute module application that returns a new variable:
-myModule.myDataType $myOutput = execute myAppVariable;
+myModule.myDataType $myOutput = execute myAppVariable;;
 
 // execute module application that returns an already declared variable:
-$myOutput = execute myAppVariable;
+$myOutput = execute myAppVariable;;
 
 // execute module application without a return clause:
-execute myAppVariable;
+execute myAppVariable;;
 ```
