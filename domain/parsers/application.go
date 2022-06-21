@@ -2,7 +2,7 @@ package parsers
 
 type application struct {
 	application Variable
-	attachments Variables
+	attachments Attachments
 }
 
 func createApplication(
@@ -13,14 +13,14 @@ func createApplication(
 
 func createApplicationWithAttachments(
 	application Variable,
-	attachments Variables,
+	attachments Attachments,
 ) Application {
 	return createApplicationInternally(application, attachments)
 }
 
 func createApplicationInternally(
 	app Variable,
-	attachments Variables,
+	attachments Attachments,
 ) Application {
 	out := application{
 		application: app,
@@ -41,6 +41,6 @@ func (obj *application) HasAttachments() bool {
 }
 
 // Attachments returns the attachments, if any
-func (obj *application) Attachments() Variables {
+func (obj *application) Attachments() Attachments {
 	return obj.attachments
 }

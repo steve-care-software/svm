@@ -29,7 +29,7 @@ func (obj *variables) List() []Variable {
 
 // Find finds a variable by name
 func (obj *variables) Find(module string, variable string) (Variable, error) {
-	keyname := fmt.Sprintf("%s%s%s", module, moduleVariableDelimiter, variable)
+	keyname := fmt.Sprintf(moduleVariablePatern, module, moduleVariableDelimiter, variable)
 	if ins, ok := obj.mp[keyname]; ok {
 		return ins, nil
 	}

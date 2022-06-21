@@ -1,6 +1,9 @@
 package applications
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/steve-care-software/svm/domain/interpreters"
 	"github.com/steve-care-software/svm/domain/lexers"
 	"github.com/steve-care-software/svm/domain/parsers"
@@ -54,9 +57,9 @@ func (app *application) Execute(params map[string]string, program parsers.Progra
 	if program.HasParameters() {
 		parameters := program.Parameters().List()
 		for _, oneParameter := range parameters {
+			variable := oneParameter.Declaration()
+			name := variable.Name()
 			if oneParameter.IsInput() {
-				variable := oneParameter.Declaration()
-				name := variable.Name()
 				if content, ok := params[name]; ok {
 					kind := variable.Kind()
 					ins, err := app.variableBuilder.Create().WithKind(kind).WithName(name).WithContent(content).Now()
@@ -68,8 +71,11 @@ func (app *application) Execute(params map[string]string, program parsers.Progra
 					continue
 				}
 
-				output[name] = variable
+				str := fmt.Sprintf("there is an input parameter variable (name: %s) declared in the script, but there is no input data of that name declared", name)
+				return nil, errors.New(str)
 			}
+
+			output[name] = variable
 		}
 	}
 
@@ -83,8 +89,47 @@ func (app *application) Execute(params map[string]string, program parsers.Progra
 		input = ins
 	}
 
+	// generate the execution params:
+	attachments := map[int]map[string]string{}
+	executionsList := program.Executions().List()
+	for idx, oneExecution := range executionsList {
+		application := oneExecution.Application()
+		if application.HasAttachments() {
+			attachments[idx] = map[string]string{}
+			attachmentsList := application.Attachments().List()
+			for _, oneAttachment := range attachmentsList {
+				moduleVariable := oneAttachment.Module()
+				nameInModule := moduleVariable.Name()
+				attachments[idx][nameInModule] = ""
+				if !moduleVariable.HasContent() && input != nil {
+					program := oneAttachment.Program()
+					moduleName := moduleVariable.Kind().Module()
+					inputVariable, err := input.Find(moduleName, program)
+					if err != nil {
+						return nil, err
+					}
+
+					content := ""
+					if inputVariable.HasContent() {
+						pContent := inputVariable.Content()
+						content = *pContent
+					}
+
+					attachments[idx][nameInModule] = content
+					continue
+				}
+
+				if moduleVariable.HasContent() {
+					pContent := moduleVariable.Content()
+					attachments[idx][nameInModule] = *pContent
+				}
+
+			}
+		}
+	}
+
 	executions := program.Executions().List()
-	variables, err := app.executions(executions, input, output)
+	variables, err := app.executions(executions, input, attachments, output)
 	if err != nil {
 		return nil, err
 	}
@@ -104,9 +149,9 @@ func (app *application) Execute(params map[string]string, program parsers.Progra
 	return app.variablesBuilder.Create().WithList(outputList).Now()
 }
 
-func (app *application) executions(executions []parsers.Execution, variables parsers.Variables, output map[string]parsers.Variable) (parsers.Variables, error) {
-	for _, oneExecution := range executions {
-		variablesAfterExec, err := app.execution(oneExecution, variables)
+func (app *application) executions(executions []parsers.Execution, variables parsers.Variables, attachments map[int]map[string]string, output map[string]parsers.Variable) (parsers.Variables, error) {
+	for idx, oneExecution := range executions {
+		variablesAfterExec, err := app.execution(oneExecution, variables, attachments[idx])
 		if err != nil {
 			return nil, err
 		}
@@ -117,8 +162,8 @@ func (app *application) executions(executions []parsers.Execution, variables par
 	return variables, nil
 }
 
-func (app *application) execution(execution parsers.Execution, variables parsers.Variables) (parsers.Variables, error) {
-	execOutput, err := app.application(execution, variables)
+func (app *application) execution(execution parsers.Execution, variables parsers.Variables, attachments map[string]string) (parsers.Variables, error) {
+	execOutput, err := app.application(execution, variables, attachments)
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +177,7 @@ func (app *application) execution(execution parsers.Execution, variables parsers
 	return variables, nil
 }
 
-func (app *application) application(execution parsers.Execution, variables parsers.Variables) (parsers.Variable, error) {
+func (app *application) application(execution parsers.Execution, variables parsers.Variables, attachments map[string]string) (parsers.Variable, error) {
 	application := execution.Application()
 	appVar := application.Application()
 	moduleName := appVar.Kind().Module()
@@ -147,7 +192,6 @@ func (app *application) application(execution parsers.Execution, variables parse
 
 	eventFn := module.Event()
 	appName := application.Application().Name()
-	attachments := application.Attachments()
 	err = app.watch(moduleName, appName, attachments, nil, true)
 	if err != nil {
 		return nil, err
@@ -184,7 +228,7 @@ func (app *application) application(execution parsers.Execution, variables parse
 	return outputVariable, nil
 }
 
-func (app *application) watch(moduleName string, appName string, attachments parsers.Variables, execOutput parsers.Variable, isEnter bool) error {
+func (app *application) watch(moduleName string, appName string, attachments map[string]string, execOutput parsers.Variable, isEnter bool) error {
 	modulesList := app.modules.List()
 	for _, oneModule := range modulesList {
 		if !oneModule.HasWatches() {
@@ -208,7 +252,7 @@ func (app *application) watch(moduleName string, appName string, attachments par
 	return nil
 }
 
-func (app *application) watchEvent(appName string, event interpreters.WatchEvent, attachments parsers.Variables, execOutput parsers.Variable, isEnter bool) error {
+func (app *application) watchEvent(appName string, event interpreters.WatchEvent, attachments map[string]string, execOutput parsers.Variable, isEnter bool) error {
 	if isEnter && event.HasEnter() {
 		enterFn := event.Enter()
 		err := enterFn(attachments, execOutput, appName)

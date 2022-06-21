@@ -8,6 +8,7 @@ import (
 )
 
 const moduleVariableDelimiter = "."
+const moduleVariablePatern = "%s%s%s"
 
 // NewProgramAdapter creates a new program adapter
 func NewProgramAdapter(commentLogWriter io.Writer) ProgramAdapter {
@@ -34,6 +35,8 @@ func NewComputerFactory() ComputerFactory {
 	parameterBuilder := NewParameterBuilder()
 	executionBuilder := NewExecutionBuilder()
 	applicationBuilder := NewApplicationBuilder()
+	attachmentsBuilder := NewAttachmentsBuilder()
+	attachmentBuilder := NewAttachmentBuilder()
 	variablesBuilder := NewVariablesBuilder()
 	variableBuilder := NewVariableBuilder()
 	return createComputerFactory(
@@ -43,6 +46,8 @@ func NewComputerFactory() ComputerFactory {
 		parameterBuilder,
 		executionBuilder,
 		applicationBuilder,
+		attachmentsBuilder,
+		attachmentBuilder,
 		variablesBuilder,
 		variableBuilder,
 	)
@@ -71,6 +76,16 @@ func NewExecutionBuilder() ExecutionBuilder {
 // NewApplicationBuilder creates a new application builder
 func NewApplicationBuilder() ApplicationBuilder {
 	return createApplicationBuilder()
+}
+
+// NewAttachmentsBuilder creates a new attachments builder
+func NewAttachmentsBuilder() AttachmentsBuilder {
+	return createAttachmentsBuilder()
+}
+
+// NewAttachmentBuilder creates a new attachment builder
+func NewAttachmentBuilder() AttachmentBuilder {
+	return createAttachmentBuilder()
 }
 
 // NewVariablesBuilder creates a new variables builder
@@ -178,7 +193,7 @@ type Execution interface {
 type ApplicationBuilder interface {
 	Create() ApplicationBuilder
 	WithApplication(application Variable) ApplicationBuilder
-	WithAttachments(attachments Variables) ApplicationBuilder
+	WithAttachments(attachments Attachments) ApplicationBuilder
 	Now() (Application, error)
 }
 
@@ -186,7 +201,33 @@ type ApplicationBuilder interface {
 type Application interface {
 	Application() Variable
 	HasAttachments() bool
-	Attachments() Variables
+	Attachments() Attachments
+}
+
+// AttachmentsBuilder represents an attachments builder
+type AttachmentsBuilder interface {
+	Create() AttachmentsBuilder
+	WithList(list []Attachment) AttachmentsBuilder
+	Now() (Attachments, error)
+}
+
+// Attachments represents attachments
+type Attachments interface {
+	List() []Attachment
+}
+
+// AttachmentBuilder represents an attachment builder
+type AttachmentBuilder interface {
+	Create() AttachmentBuilder
+	WithProgram(program string) AttachmentBuilder
+	WithModule(module Variable) AttachmentBuilder
+	Now() (Attachment, error)
+}
+
+// Attachment represents an attachment
+type Attachment interface {
+	Program() string
+	Module() Variable
 }
 
 // VariablesBuilder represents variables builder

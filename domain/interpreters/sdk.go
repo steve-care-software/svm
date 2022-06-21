@@ -5,13 +5,13 @@ import (
 )
 
 // ExecuteFn represents the execute func
-type ExecuteFn func(input parsers.Variables, application string) (string, error)
+type ExecuteFn func(input map[string]string, application string) (string, error)
 
 // EnterWatchFn represents the enterWatchFn func
-type EnterWatchFn func(input parsers.Variables, execOutput parsers.Variable, application string) error
+type EnterWatchFn func(input map[string]string, execOutput parsers.Variable, application string) error
 
 // ExitWatchFn represents the exitWatchFn func
-type ExitWatchFn func(input parsers.Variables, application string) error
+type ExitWatchFn func(input map[string]string, application string) error
 
 // NewModulesBuilder creates a new modules builder
 func NewModulesBuilder() ModulesBuilder {

@@ -6,7 +6,7 @@ import (
 
 type applicationBuilder struct {
 	application Variable
-	attachments Variables
+	attachments Attachments
 }
 
 func createApplicationBuilder() ApplicationBuilder {
@@ -30,7 +30,7 @@ func (app *applicationBuilder) WithApplication(application Variable) Application
 }
 
 // WithAttachments add attachments to the builder
-func (app *applicationBuilder) WithAttachments(attachments Variables) ApplicationBuilder {
+func (app *applicationBuilder) WithAttachments(attachments Attachments) ApplicationBuilder {
 	app.attachments = attachments
 	return app
 }

@@ -7,6 +7,8 @@ type computerFactory struct {
 	parameterBuilder   ParameterBuilder
 	executionBuilder   ExecutionBuilder
 	applicationBuilder ApplicationBuilder
+	attachmentsBuilder AttachmentsBuilder
+	attachmentBuilder  AttachmentBuilder
 	variablesBuilder   VariablesBuilder
 	variableBuilder    VariableBuilder
 }
@@ -18,6 +20,8 @@ func createComputerFactory(
 	parameterBuilder ParameterBuilder,
 	executionBuilder ExecutionBuilder,
 	applicationBuilder ApplicationBuilder,
+	attachmentsBuilder AttachmentsBuilder,
+	attachmentBuilder AttachmentBuilder,
 	variablesBuilder VariablesBuilder,
 	variableBuilder VariableBuilder,
 ) ComputerFactory {
@@ -28,6 +32,8 @@ func createComputerFactory(
 		parameterBuilder:   parameterBuilder,
 		executionBuilder:   executionBuilder,
 		applicationBuilder: applicationBuilder,
+		attachmentsBuilder: attachmentsBuilder,
+		attachmentBuilder:  attachmentBuilder,
 		variablesBuilder:   variablesBuilder,
 		variableBuilder:    variableBuilder,
 	}
@@ -43,6 +49,8 @@ func (app *computerFactory) Create() Computer {
 		app.parameterBuilder,
 		app.executionBuilder,
 		app.applicationBuilder,
+		app.attachmentsBuilder,
+		app.attachmentBuilder,
 		app.variablesBuilder,
 		app.variableBuilder,
 	)

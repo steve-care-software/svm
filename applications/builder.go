@@ -44,12 +44,8 @@ func (app *builder) Create() Builder {
 
 // WithModules add modules to the builder
 func (app *builder) WithModules(modules interpreters.Modules) Builder {
-	return createBuilder(
-		app.lexerAdapter,
-		app.parserAdapter,
-		app.variableBuilder,
-		app.variablesBuilder,
-	)
+	app.modules = modules
+	return app
 }
 
 // Now builds a new Application instance

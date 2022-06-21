@@ -14,11 +14,13 @@ type computer struct {
 	parameterBuilder   ParameterBuilder
 	executionBuilder   ExecutionBuilder
 	applicationBuilder ApplicationBuilder
+	attachmentsBuilder AttachmentsBuilder
+	attachmentBuilder  AttachmentBuilder
 	variablesBuilder   VariablesBuilder
 	variableBuilder    VariableBuilder
 	kinds              map[string]map[string]lexers.Kind
 	variables          map[string]Variable
-	attachments        map[string]map[string]Variable
+	attachments        map[string]map[string]Attachment
 	executions         []Execution
 	parameters         map[string]Parameter
 }
@@ -30,6 +32,8 @@ func createComputer(
 	parameterBuilder ParameterBuilder,
 	executionBuilder ExecutionBuilder,
 	applicationBuilder ApplicationBuilder,
+	attachmentsBuilder AttachmentsBuilder,
+	attachmentBuilder AttachmentBuilder,
 	variablesBuilder VariablesBuilder,
 	variableBuilder VariableBuilder,
 ) Computer {
@@ -40,11 +44,13 @@ func createComputer(
 		parameterBuilder:   parameterBuilder,
 		executionBuilder:   executionBuilder,
 		applicationBuilder: applicationBuilder,
+		attachmentsBuilder: attachmentsBuilder,
+		attachmentBuilder:  attachmentBuilder,
 		variablesBuilder:   variablesBuilder,
 		variableBuilder:    variableBuilder,
 		kinds:              map[string]map[string]lexers.Kind{},
 		variables:          map[string]Variable{},
-		attachments:        map[string]map[string]Variable{},
+		attachments:        map[string]map[string]Attachment{},
 		executions:         []Execution{},
 		parameters:         map[string]Parameter{},
 	}
@@ -150,7 +156,7 @@ func (app *computer) Action(action lexers.Action) error {
 			}
 
 			if _, ok := app.attachments[application]; !ok {
-				app.attachments[application] = map[string]Variable{}
+				app.attachments[application] = map[string]Attachment{}
 			}
 
 			name := scope.Module()
@@ -173,7 +179,12 @@ func (app *computer) Action(action lexers.Action) error {
 					return err
 				}
 
-				app.attachments[application][name] = moduleVariable
+				attachment, err := app.attachmentBuilder.Create().WithProgram(program).WithModule(moduleVariable).Now()
+				if err != nil {
+					return err
+				}
+
+				app.attachments[application][name] = attachment
 				return nil
 			}
 
@@ -205,7 +216,7 @@ func (app *computer) Execute(execution lexers.Execution) error {
 			return errors.New(str)
 		}
 
-		attachmentsList := []Variable{}
+		attachmentsList := []Attachment{}
 		if variables, ok := app.attachments[application]; ok {
 			for _, oneVariable := range variables {
 				attachmentsList = append(attachmentsList, oneVariable)
@@ -214,7 +225,7 @@ func (app *computer) Execute(execution lexers.Execution) error {
 
 		applicationBuilder := app.applicationBuilder.Create().WithApplication(applicationVariable)
 		if len(attachmentsList) > 0 {
-			attachments, err := app.variablesBuilder.Create().WithList(attachmentsList).Now()
+			attachments, err := app.attachmentsBuilder.Create().WithList(attachmentsList).Now()
 			if err != nil {
 				return err
 			}

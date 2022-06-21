@@ -40,7 +40,7 @@ func (app *variablesBuilder) Now() (Variables, error) {
 
 	mp := map[string]Variable{}
 	for _, oneVariable := range app.list {
-		keyname := oneVariable.Name()
+		keyname := fmt.Sprintf(moduleVariablePatern, oneVariable.Kind().Module(), moduleVariableDelimiter, oneVariable.Name())
 		mp[keyname] = oneVariable
 	}
 
